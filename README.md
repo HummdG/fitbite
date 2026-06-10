@@ -10,9 +10,9 @@ This repo is a **monorepo** containing three parts:
 
 | Folder    | What it is                                                                 |
 |-----------|----------------------------------------------------------------------------|
-| `app/`    | Expo (React Native + TypeScript) client — phones & tablets, iOS & Android  |
+| `app/`    | Expo (React Native + TypeScript) client — phones & tablets, iOS & Android. Brand tokens in `app/src/theme/tokens.json`. |
 | `service/`| Python **FastAPI** service — Claude vision extraction + Fit Score + targets |
-| `shared/` | Design tokens + API contracts shared across the two                        |
+| `supabase/`| Postgres schema migration + RLS policies + storage bucket                 |
 | `docs/`   | Source concept + colour-scheme docs + logo                                 |
 
 ## Current scope — vertical slice
