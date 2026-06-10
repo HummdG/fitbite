@@ -1,0 +1,30 @@
+# --- Node / Expo ---
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+npm-debug.*
+yarn-error.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Env / secrets (never commit real keys) ---
+.env
+.env.*
+!.env.example
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

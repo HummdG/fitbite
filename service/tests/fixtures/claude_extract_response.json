@@ -1,0 +1,48 @@
+{
+  "dishes": [
+    {
+      "name": "Chicken shawarma bowl",
+      "description": "Grilled chicken, rice, salad and garlic sauce",
+      "ingredients": ["chicken", "rice", "salad", "garlic sauce"],
+      "calories": { "low": 560, "high": 700 },
+      "protein_g": { "low": 38, "high": 46 },
+      "fibre_g": { "low": 5, "high": 9 },
+      "confidence": "high",
+      "cook_method_flags": ["grilled"],
+      "candidate_modifications": ["Sauce on the side", "Extra salad"]
+    },
+    {
+      "name": "Crispy fried chicken burger & fries",
+      "description": "Buttermilk fried chicken, brioche bun, fries",
+      "ingredients": ["chicken", "bun", "fries", "mayo"],
+      "calories": { "low": 1050, "high": 1300 },
+      "protein_g": { "low": 35, "high": 45 },
+      "fibre_g": { "low": 3, "high": 6 },
+      "confidence": "high",
+      "cook_method_flags": ["fried", "creamy"],
+      "candidate_modifications": ["Swap fries for salad"]
+    },
+    {
+      "name": "Falafel mezze plate",
+      "description": "Falafel, hummus, flatbread and pickles",
+      "ingredients": ["falafel", "hummus", "flatbread"],
+      "calories": { "low": 600, "high": 820 },
+      "protein_g": { "low": 18, "high": 24 },
+      "fibre_g": { "low": 10, "high": 15 },
+      "confidence": "medium",
+      "cook_method_flags": ["fried"],
+      "candidate_modifications": []
+    },
+    {
+      "name": "Daily chef special",
+      "description": "Ask your server",
+      "ingredients": [],
+      "calories": { "low": 400, "high": 1200 },
+      "protein_g": { "low": 10, "high": 50 },
+      "fibre_g": { "low": 2, "high": 12 },
+      "confidence": "low",
+      "cook_method_flags": [],
+      "candidate_modifications": []
+    }
+  ]
+}
