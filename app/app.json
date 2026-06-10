@@ -32,6 +32,15 @@
           "photosPermission": "FitBite uses your photos so you can upload a menu to scan.",
           "cameraPermission": "FitBite uses the camera so you can photograph a menu to scan."
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 360,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFF7FB"
+        }
       ]
     ]
   }
