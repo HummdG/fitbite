@@ -1,6 +1,8 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ActivityIndicator, Pressable, StyleSheet, ViewStyle } from 'react-native';
 
-import { theme } from '@/theme';
+import { keyShadow, theme } from '@/theme';
+import { Text } from './Text';
 
 type Variant = 'primary' | 'secondary';
 
@@ -24,42 +26,72 @@ export function Button({
   style,
 }: Props) {
   const isPrimary = variant === 'primary';
-  const bg = isPrimary ? theme.color.pink : theme.color.blushPink;
-  const fg = isPrimary ? theme.color.textOnPink : theme.color.plumShadow;
   const isDisabled = disabled || loading;
 
+  if (isPrimary) {
+    const fg = isDisabled ? '#FFFFFFCC' : theme.color.textOnPink;
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: isDisabled }}
+        onPress={onPress}
+        disabled={isDisabled}
+        style={({ pressed }) => [
+          styles.outer,
+          { alignSelf: fullWidth ? 'stretch' : 'flex-start' },
+          !isDisabled && keyShadow(),
+          { opacity: pressed && !isDisabled ? 0.92 : 1 },
+          style,
+        ]}
+      >
+        <LinearGradient
+          colors={
+            (isDisabled
+              ? [theme.color.blushPink, theme.color.blushPink]
+              : theme.gradient.cta) as [string, string, ...string[]]
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.btn}
+        >
+          {loading ? <ActivityIndicator color={fg} /> : <Text style={[styles.label, { color: fg }]}>{title}</Text>}
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
+  // Secondary — quiet, light blush fill with plum text.
+  const fg = theme.color.plumShadow;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled }}
       onPress={onPress}
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.btn,
-        {
-          backgroundColor: bg,
-          opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
-          alignSelf: fullWidth ? 'stretch' : 'flex-start',
-        },
+        styles.secondary,
+        { opacity: isDisabled ? 0.5 : pressed ? 0.9 : 1, alignSelf: fullWidth ? 'stretch' : 'flex-start' },
         style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={fg} />
-      ) : (
-        <Text style={[styles.label, { color: fg }]}>{title}</Text>
-      )}
+      {loading ? <ActivityIndicator color={fg} /> : <Text style={[styles.label, { color: fg }]}>{title}</Text>}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  outer: { borderRadius: theme.radius.pill },
   btn: {
     borderRadius: theme.radius.pill,
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 54,
+  },
+  secondary: {
+    backgroundColor: theme.color.blushMist,
   },
   label: { fontSize: theme.fontSize.subtitle, fontWeight: '700' },
 });

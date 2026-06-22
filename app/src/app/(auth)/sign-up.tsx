@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Alert, Image, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { Link } from 'expo-router';
 
-import { Button, Field, ScreenContainer } from '@/components';
+import { Button, Field, Logo, ScreenContainer } from '@/components';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/theme';
 
@@ -27,7 +28,7 @@ export default function SignUp() {
   return (
     <ScreenContainer>
       <View style={styles.header}>
-        <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+        <Logo size={60} withWordmark style={{ marginBottom: theme.spacing.md }} />
         <Text style={styles.title}>Create your account</Text>
         <Text style={styles.sub}>Set your goals once — then just scan and go.</Text>
       </View>
@@ -59,8 +60,7 @@ export default function SignUp() {
 
 const styles = StyleSheet.create({
   header: { alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl },
-  logo: { width: 96, height: 96, marginBottom: theme.spacing.sm },
   title: { fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginTop: 4, textAlign: 'center' },
-  link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.purple, fontWeight: '600' },
+  link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.purple, fontFamily: theme.fontFamily.semibold },
 });

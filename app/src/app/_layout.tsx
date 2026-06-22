@@ -4,11 +4,23 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
 
 import { SessionProvider, useSession } from '@/features/auth/useSession';
 import { useProfile } from '@/features/profile/useProfile';
 import { queryClient } from '@/lib/queryClient';
 import { theme } from '@/theme';
+
+// Keep the branded splash up until the Poppins families are ready, so the very
+// first frame the user sees is already in-brand (never the system font).
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function FullScreenLoader() {
   return (
@@ -57,6 +69,22 @@ function AuthGate() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+  const ready = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  // Render nothing while fonts load — the native splash stays visible. If the
+  // fonts fail outright we still proceed (system font) rather than hang forever.
+  if (!ready) return null;
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>

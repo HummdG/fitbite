@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 
-import { theme, verdictColor } from '@/theme';
+import { softShadow, theme, verdictColor } from '@/theme';
 import type { ScoredDish } from '@/types/api';
 import { Icon } from './Icon';
 import { MacroChips } from './MacroChips';
@@ -26,7 +27,7 @@ export function DishCard({ dish, onPress, highlight = false }: Props) {
       disabled={!onPress}
       style={({ pressed }) => [styles.card, highlight && styles.highlight, { opacity: pressed ? 0.92 : 1 }]}
     >
-      <Thumb size={60} />
+      <Thumb size={60} name={dish.name} />
       <View style={styles.middle}>
         <Text style={styles.name} numberOfLines={1}>
           {dish.name}
@@ -61,11 +62,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
-    shadowColor: theme.shadow.card.color,
-    shadowOpacity: theme.shadow.card.opacity,
-    shadowRadius: theme.shadow.card.radius,
-    shadowOffset: { width: 0, height: theme.shadow.card.offsetY },
-    elevation: 2,
+    ...softShadow(),
   },
   highlight: { borderColor: theme.color.pink, borderWidth: 2 },
   middle: { flex: 1, gap: 2 },

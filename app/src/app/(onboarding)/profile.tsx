@@ -1,4 +1,5 @@
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
 import { Button, ChipGroup, Field, ScreenContainer, Stepper } from '@/components';

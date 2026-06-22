@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
+import { Text } from '@/components/Text';
 
-import { theme } from '@/theme';
+import { theme, withAlpha } from '@/theme';
 import { Icon, IconName } from './Icon';
 
 type Props = {
@@ -16,8 +17,10 @@ type Props = {
  * step and item-details macro grid. */
 export function MacroStat({ icon, label, value, unit, color, style }: Props) {
   return (
-    <View style={[styles.card, style]}>
-      <View style={[styles.iconWrap, { backgroundColor: `${color}1A` }]}>
+    <View
+      style={[styles.card, { backgroundColor: withAlpha(color, 0x0e), borderColor: withAlpha(color, 0x2e) }, style]}
+    >
+      <View style={[styles.iconWrap, { backgroundColor: withAlpha(color, 0x22) }]}>
         <Icon name={icon} size={20} color={color} />
       </View>
       <Text style={styles.value}>
@@ -33,8 +36,6 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: 140,
-    backgroundColor: theme.color.card,
-    borderColor: theme.color.border,
     borderWidth: 1,
     borderRadius: theme.radius.lg,
     padding: theme.spacing.lg,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button, Card, DishCard, Icon, MacroStat, Pill, ScreenContainer, Thumb } from '@/components';
@@ -25,6 +26,7 @@ export default function ItemDetails() {
         title: 'Item details',
         headerStyle: { backgroundColor: theme.color.background },
         headerTintColor: theme.color.purple,
+        headerTitleStyle: { fontFamily: theme.fontFamily.semibold, color: theme.color.textPrimary },
         headerShadowVisible: false,
       }}
     />
@@ -62,7 +64,7 @@ export default function ItemDetails() {
     <ScreenContainer>
       {header}
 
-      <Thumb size={160} radius={theme.radius.xl} style={styles.hero} />
+      <Thumb size={160} radius={theme.radius.xl} name={dish.name} style={styles.hero} />
 
       <View style={styles.titleRow}>
         <Text style={styles.name}>{dish.name}</Text>

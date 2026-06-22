@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 
 import { Card, LineChart, MacroStat, ScreenContainer, SegmentedControl } from '@/components';
 import { useSession } from '@/features/auth/useSession';
@@ -13,9 +14,20 @@ const RANGES: { label: string; value: Range }[] = [
   { label: '90 days', value: '90' },
 ];
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 function avg(nums: number[]): number {
   if (!nums.length) return 0;
   return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+}
+
+/** First/last day labels for the visible range, e.g. ["24 May", "22 Jun"]. */
+function rangeLabels(days: number): [string, string] {
+  const fmt = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - (days - 1));
+  return [fmt(start), fmt(end)];
 }
 
 export default function Progress() {
@@ -49,7 +61,7 @@ export default function Progress() {
           {logged.length} of {days} days logged
         </Text>
         <View style={{ marginTop: theme.spacing.md }}>
-          <LineChart data={calories} color={theme.color.pink} />
+          <LineChart data={calories} labels={rangeLabels(days)} color={theme.color.pink} />
         </View>
       </Card>
 

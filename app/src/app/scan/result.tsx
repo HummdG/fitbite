@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { Stack, useRouter } from 'expo-router';
 
 import { Button, DishCard, ScreenContainer } from '@/components';
@@ -17,6 +18,7 @@ export default function Result() {
         title: 'Menu results',
         headerStyle: { backgroundColor: theme.color.background },
         headerTintColor: theme.color.purple,
+        headerTitleStyle: { fontFamily: theme.fontFamily.semibold, color: theme.color.textPrimary },
         headerShadowVisible: false,
       }}
     />

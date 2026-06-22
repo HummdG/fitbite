@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { Text } from '@/components/Text';
 
 import { theme } from '@/theme';
 
@@ -29,9 +30,10 @@ const styles = StyleSheet.create({
     borderColor: theme.color.border,
     borderWidth: 1,
     borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 14,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: 15,
     fontSize: theme.fontSize.subtitle,
+    fontFamily: theme.fontFamily.regular,
     color: theme.color.textPrimary,
   },
 });

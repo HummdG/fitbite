@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
 import {
@@ -18,7 +19,7 @@ import { useSession } from '@/features/auth/useSession';
 import { useHistory } from '@/features/history/useHistory';
 import { useProfile } from '@/features/profile/useProfile';
 import { AddToTodayInput, useAddToToday, useRemoveFromToday, useToday } from '@/features/today/useToday';
-import { theme } from '@/theme';
+import { softShadow, theme } from '@/theme';
 import type { FoodLogRow, MacroKey } from '@/types/api';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -73,7 +74,7 @@ export default function Today() {
       <GradientHeader style={{ marginBottom: theme.spacing.lg }}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.hello}>Today</Text>
+            <Text style={styles.hello}>Today ☀️</Text>
             <Text style={styles.date}>{prettyToday()}</Text>
           </View>
           <View style={styles.streak}>
@@ -99,7 +100,7 @@ export default function Today() {
       ) : today && today.rows.length > 0 ? (
         today.rows.map((r) => (
           <View key={r.id} style={styles.logRow}>
-            <Thumb size={48} />
+            <Thumb size={48} name={r.name} />
             <View style={styles.logMid}>
               <Text style={styles.logName} numberOfLines={1}>
                 {r.name}
@@ -220,6 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
+    ...softShadow(),
   },
   logMid: { flex: 1 },
   logName: { fontWeight: '700', color: theme.color.textPrimary, fontSize: theme.fontSize.body },

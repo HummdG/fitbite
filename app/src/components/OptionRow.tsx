@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 
-import { theme } from '@/theme';
+import { softShadow, theme } from '@/theme';
 import { Icon, IconName } from './Icon';
 
 type Props = {
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
+    ...softShadow(),
   },
   iconWrap: { width: 44, height: 44, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
   textWrap: { flex: 1 },

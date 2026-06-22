@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 
 import { Calendar, Card, ScreenContainer, Thumb } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { useHistory } from '@/features/history/useHistory';
 import { localDateKey } from '@/features/today/useToday';
-import { theme } from '@/theme';
+import { softShadow, theme } from '@/theme';
 
 export default function History() {
   const { session } = useSession();
@@ -44,7 +45,7 @@ export default function History() {
       {day && day.rows.length > 0 ? (
         day.rows.map((r) => (
           <View key={r.id} style={styles.row}>
-            <Thumb size={44} />
+            <Thumb size={44} name={r.name} />
             <View style={styles.mid}>
               <Text style={styles.name} numberOfLines={1}>
                 {r.name}
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
+    ...softShadow(),
   },
   mid: { flex: 1 },
   name: { fontWeight: '700', color: theme.color.textPrimary, fontSize: theme.fontSize.body },

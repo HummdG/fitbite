@@ -1,7 +1,8 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
-import { Button, ScreenContainer } from '@/components';
+import { Button, Logo, ScreenContainer } from '@/components';
 import { theme } from '@/theme';
 
 export default function Welcome() {
@@ -11,7 +12,7 @@ export default function Welcome() {
     <ScreenContainer scroll={false}>
       <View style={styles.wrap}>
         <View style={styles.hero}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Logo size={132} withWordmark style={{ marginBottom: theme.spacing.sm }} />
           <Text style={styles.tagline}>
             Find the <Text style={styles.taglineAccent}>bite</Text> that fits.
           </Text>
@@ -30,7 +31,6 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   wrap: { flex: 1, justifyContent: 'space-between', paddingVertical: theme.spacing.xxl },
   hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing.md },
-  logo: { width: 240, height: 240 },
   tagline: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary, textAlign: 'center' },
   taglineAccent: { color: theme.color.pink },
   sub: {

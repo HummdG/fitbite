@@ -22,7 +22,7 @@ export default function TabsLayout() {
           paddingTop: 6,
           paddingBottom: 10,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: theme.fontFamily.semibold },
       }}
     >
       <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: tabIcon('home', 'homeOutline') }} />
