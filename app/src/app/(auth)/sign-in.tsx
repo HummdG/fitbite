@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 
 import { Button, Field, ScreenContainer } from '@/components';
@@ -24,8 +24,11 @@ export default function SignIn() {
 
   return (
     <ScreenContainer>
-      <Text style={styles.brand}>FitBite</Text>
-      <Text style={styles.tagline}>Eat out without ruining your progress.</Text>
+      <View style={styles.header}>
+        <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>Welcome back</Text>
+        <Text style={styles.sub}>Sign in to pick up where you left off.</Text>
+      </View>
 
       <Field
         label="Email"
@@ -43,7 +46,7 @@ export default function SignIn() {
         onChangeText={setPassword}
         placeholder="••••••••"
       />
-      <Button title="Sign in" onPress={onSignIn} loading={busy} disabled={!email || !password} />
+      <Button title="Sign in" onPress={onSignIn} loading={busy} disabled={!email || !password} style={{ marginTop: theme.spacing.sm }} />
 
       <Link href="/sign-up" style={styles.link}>
         New here? Create an account
@@ -53,7 +56,9 @@ export default function SignIn() {
 }
 
 const styles = StyleSheet.create({
-  brand: { fontSize: theme.fontSize.hero, fontWeight: '700', color: theme.color.pink, marginTop: theme.spacing.xxl },
-  tagline: { fontSize: theme.fontSize.subtitle, color: theme.color.textSecondary, marginBottom: theme.spacing.xxl },
+  header: { alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl },
+  logo: { width: 96, height: 96, marginBottom: theme.spacing.sm },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary },
+  sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginTop: 4, textAlign: 'center' },
   link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.purple, fontWeight: '600' },
 });

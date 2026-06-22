@@ -1,14 +1,14 @@
 import { Alert, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, ChipGroup, Field, ScreenContainer } from '@/components';
+import { Button, ChipGroup, Field, ScreenContainer, Stepper } from '@/components';
 import { useOnboarding } from '@/features/onboarding/store';
 import { theme } from '@/theme';
 import type { ActivityLevel, Gender } from '@/types/api';
 
 const GENDERS: { label: string; value: Gender }[] = [
-  { label: 'Male', value: 'male' },
   { label: 'Female', value: 'female' },
+  { label: 'Male', value: 'male' },
 ];
 
 const ACTIVITY: { label: string; value: ActivityLevel }[] = [
@@ -29,7 +29,7 @@ export default function ProfileStep() {
 
   const onContinue = () => {
     if (!draft.gender || !draft.activity_level) {
-      Alert.alert('Almost there', 'Please choose your gender and activity level.');
+      Alert.alert('Almost there', 'Please choose your sex and activity level.');
       return;
     }
     if (!draft.age || !draft.height_cm || !draft.current_weight_kg) {
@@ -41,10 +41,11 @@ export default function ProfileStep() {
 
   return (
     <ScreenContainer>
+      <Stepper step={2} total={4} label="About you" />
       <Text style={styles.title}>About you</Text>
-      <Text style={styles.sub}>We use this to estimate your daily targets.</Text>
+      <Text style={styles.sub}>Help us personalise your daily targets.</Text>
 
-      <ChipGroup label="Gender" options={GENDERS} value={draft.gender} onChange={(v) => update({ gender: v as Gender })} />
+      <ChipGroup label="Sex" options={GENDERS} value={draft.gender} onChange={(v) => update({ gender: v as Gender })} />
 
       <Field label="Age" keyboardType="number-pad" value={draft.age} onChangeText={(v) => update({ age: v })} placeholder="e.g. 30" />
       <Field label="Height (cm)" keyboardType="numeric" value={draft.height_cm} onChangeText={(v) => update({ height_cm: v })} placeholder="e.g. 175" />
@@ -79,6 +80,6 @@ export default function ProfileStep() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.md },
+  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
 });

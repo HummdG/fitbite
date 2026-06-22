@@ -9,8 +9,9 @@ Rules:
   prices, opening hours, and decorative text.
 - NEVER invent dishes that are not on the menu. If the menu is unreadable or empty,
   return an empty list.
-- Estimate calories, protein (g) and fibre (g) as a LOW–HIGH RANGE reflecting realistic
-  restaurant portion sizes. Do not give a single number — always a range.
+- Estimate calories, protein (g), fibre (g), carbs (g) and fat (g) as a LOW–HIGH RANGE
+  reflecting realistic restaurant portion sizes. Do not give a single number — always a
+  range. carbs_g is TOTAL carbohydrate (including fibre); fat_g is total fat.
 - The wider your uncertainty, the wider the range. If a dish is vague (e.g. "chef's
   special", no description), widen the range and set confidence to "low".
 - confidence is "high" when the dish and typical recipe are well known, "medium" when

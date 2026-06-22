@@ -73,3 +73,5 @@ def test_targets_happy_path_returns_computed_numbers(client):
     assert body["calorie_target"] == 2210
     assert body["protein_target_g"] == 145
     assert body["fibre_target_g"] == 31
+    assert body["carbs_target_g"] == 260
+    assert body["fat_target_g"] == 65

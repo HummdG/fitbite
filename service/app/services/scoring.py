@@ -221,6 +221,9 @@ def score_dishes(
         cal = MacroEstimate.from_range(d.calories)
         prot = MacroEstimate.from_range(d.protein_g)
         fib = MacroEstimate.from_range(d.fibre_g)
+        # carbs/fat are informational only — surfaced in the UI, never scored.
+        carbs = MacroEstimate.from_range(d.carbs_g)
+        fat = MacroEstimate.from_range(d.fat_g)
 
         diet = _diet_flags(d, profile)
 
@@ -253,6 +256,8 @@ def score_dishes(
             calories=cal,
             protein_g=prot,
             fibre_g=fib,
+            carbs_g=carbs,
+            fat_g=fat,
             fit_score=round(fit, 4),
             verdict=verdict,
             why=_why(verdict, subs, diet, modifications),

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 
 import { Button, Field, ScreenContainer } from '@/components';
@@ -26,8 +26,11 @@ export default function SignUp() {
 
   return (
     <ScreenContainer>
-      <Text style={styles.brand}>Create your account</Text>
-      <Text style={styles.tagline}>Set your goals once — then just scan and go.</Text>
+      <View style={styles.header}>
+        <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>Create your account</Text>
+        <Text style={styles.sub}>Set your goals once — then just scan and go.</Text>
+      </View>
 
       <Field
         label="Email"
@@ -45,7 +48,7 @@ export default function SignUp() {
         onChangeText={setPassword}
         placeholder="At least 6 characters"
       />
-      <Button title="Create account" onPress={onSignUp} loading={busy} disabled={!email || password.length < 6} />
+      <Button title="Create account" onPress={onSignUp} loading={busy} disabled={!email || password.length < 6} style={{ marginTop: theme.spacing.sm }} />
 
       <Link href="/sign-in" style={styles.link}>
         Already have an account? Sign in
@@ -55,7 +58,9 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  brand: { fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.xxl },
-  tagline: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.xl },
+  header: { alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl },
+  logo: { width: 96, height: 96, marginBottom: theme.spacing.sm },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary },
+  sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginTop: 4, textAlign: 'center' },
   link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.purple, fontWeight: '600' },
 });

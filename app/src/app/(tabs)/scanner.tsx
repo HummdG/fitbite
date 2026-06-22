@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 
-import { Button, Card, Field, ScreenContainer } from '@/components';
+import { Button, Card, Field, Icon, OptionRow, ScreenContainer, Thumb } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { lastScan } from '@/features/scan/lastScan';
 import { useScan } from '@/features/scan/useScan';
@@ -19,7 +19,7 @@ export default function Scanner() {
   const { data: today } = useToday(session?.user?.id);
   const [restaurant, setRestaurant] = useState('');
 
-  const consumed = today?.totals ?? { calories: 0, protein_g: 0, fibre_g: 0 };
+  const consumed = today?.totals ?? { calories: 0, protein_g: 0, fibre_g: 0, carbs_g: 0, fat_g: 0 };
   const busy = scan.isPending;
 
   const runScan = async (req: ScanRequest) => {
@@ -44,11 +44,7 @@ export default function Scanner() {
     const context = ImageManipulator.manipulate(uri);
     context.resize({ width: 1600 });
     const rendered = await context.renderAsync();
-    const out = await rendered.saveAsync({
-      format: SaveFormat.JPEG,
-      compress: 0.6,
-      base64: true,
-    });
+    const out = await rendered.saveAsync({ format: SaveFormat.JPEG, compress: 0.6, base64: true });
     if (!out.base64) throw new Error('Could not read the image.');
     return out.base64;
   };
@@ -86,15 +82,25 @@ export default function Scanner() {
   return (
     <ScreenContainer>
       <Text style={styles.title}>Scan a menu</Text>
-      <Text style={styles.sub}>Snap it, upload a screenshot, or just type the restaurant.</Text>
+      <Text style={styles.sub}>Three simple ways to find your best bite in seconds.</Text>
 
-      <Button title="Take a photo" onPress={takePhoto} loading={busy} disabled={busy} />
-      <View style={{ height: theme.spacing.sm }} />
-      <Button title="Upload a screenshot" variant="secondary" onPress={uploadImage} disabled={busy} />
+      <Card style={styles.illustration}>
+        <Thumb size={88} radius={theme.radius.lg} icon="restaurant" />
+        <Text style={styles.illustrationText}>Point at a menu, drop in a screenshot, or just name the place.</Text>
+      </Card>
+
+      <View style={{ gap: theme.spacing.sm }}>
+        <OptionRow icon="camera" title="Take a photo" subtitle="Snap the menu in front of you" onPress={takePhoto} disabled={busy} />
+        <OptionRow icon="image" title="Upload a screenshot" subtitle="Use a photo from your library" tint={theme.color.purple} onPress={uploadImage} disabled={busy} />
+      </View>
 
       <Card style={{ marginTop: theme.spacing.lg }}>
+        <View style={styles.searchHeader}>
+          <Icon name="search" size={18} color={theme.color.berry} />
+          <Text style={styles.searchTitle}>Search a restaurant</Text>
+        </View>
         <Field
-          label="Or type a restaurant name"
+          label="Restaurant name"
           value={restaurant}
           onChangeText={setRestaurant}
           autoCapitalize="words"
@@ -112,6 +118,10 @@ export default function Scanner() {
 const styles = StyleSheet.create({
   title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.md },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
+  illustration: { alignItems: 'center', gap: theme.spacing.md, marginBottom: theme.spacing.lg },
+  illustrationText: { textAlign: 'center', color: theme.color.textSecondary, fontSize: theme.fontSize.body, lineHeight: 20 },
+  searchHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: theme.spacing.sm },
+  searchTitle: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
   muted: { color: theme.color.textSecondary, fontSize: theme.fontSize.body, marginTop: theme.spacing.lg, textAlign: 'center' },
   disclaimer: { color: theme.color.textSecondary, fontSize: theme.fontSize.caption, marginTop: theme.spacing.xl, textAlign: 'center' },
 });

@@ -6,12 +6,30 @@ import { theme } from '@/theme';
 type Props = {
   value: number;
   target: number;
-  unit?: string;
+  /** Small line under the value, e.g. "kcal" or "/ 150 g". */
+  caption?: string;
   size?: number;
   stroke?: number;
+  color?: string;
+  trackColor?: string;
 };
 
-export function MacroRing({ value, target, unit = 'kcal', size = 168, stroke = 16 }: Props) {
+function valueFont(size: number): number {
+  if (size >= 150) return theme.fontSize.display;
+  if (size >= 110) return theme.fontSize.title;
+  if (size >= 84) return theme.fontSize.subtitle;
+  return theme.fontSize.body;
+}
+
+export function MacroRing({
+  value,
+  target,
+  caption,
+  size = 168,
+  stroke = 16,
+  color = theme.color.macro.calories,
+  trackColor = theme.color.blushMist,
+}: Props) {
   const pct = target > 0 ? Math.min(value / target, 1) : 0;
   const r = (size - stroke) / 2;
   const circumference = 2 * Math.PI * r;
@@ -21,12 +39,12 @@ export function MacroRing({ value, target, unit = 'kcal', size = 168, stroke = 1
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
-        <Circle cx={center} cy={center} r={r} stroke={theme.color.blushMist} strokeWidth={stroke} fill="none" />
+        <Circle cx={center} cy={center} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
         <Circle
           cx={center}
           cy={center}
           r={r}
-          stroke={theme.color.pink}
+          stroke={color}
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
@@ -35,15 +53,13 @@ export function MacroRing({ value, target, unit = 'kcal', size = 168, stroke = 1
           transform={`rotate(-90 ${center} ${center})`}
         />
       </Svg>
-      <Text style={styles.value}>{value.toLocaleString()}</Text>
-      <Text style={styles.target}>
-        / {target.toLocaleString()} {unit}
-      </Text>
+      <Text style={[styles.value, { fontSize: valueFont(size) }]}>{value.toLocaleString()}</Text>
+      {!!caption && <Text style={styles.caption}>{caption}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  value: { fontSize: theme.fontSize.display, fontWeight: '700', color: theme.color.textPrimary },
-  target: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginTop: 2 },
+  value: { fontWeight: '700', color: theme.color.textPrimary },
+  caption: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginTop: 2 },
 });

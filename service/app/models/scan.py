@@ -34,8 +34,16 @@ class MacroEstimate(BaseModel):
         return cls(low=lo, high=hi, point=round((lo + hi) / 2))
 
 
+def _zero_range() -> "MacroRange":
+    return MacroRange(low=0, high=0)
+
+
 class ExtractedDish(BaseModel):
-    """A single dish as read off the menu by Claude. Macros are ranges."""
+    """A single dish as read off the menu by Claude. Macros are ranges.
+
+    carbs_g / fat_g are informational (surfaced in the UI) — they default to a
+    zero range so older extractions/fixtures that predate them still validate.
+    """
 
     name: str
     description: Optional[str] = None
@@ -43,6 +51,8 @@ class ExtractedDish(BaseModel):
     calories: MacroRange
     protein_g: MacroRange
     fibre_g: MacroRange
+    carbs_g: MacroRange = Field(default_factory=_zero_range)
+    fat_g: MacroRange = Field(default_factory=_zero_range)
     confidence: Confidence = "medium"
     cook_method_flags: list[str] = Field(default_factory=list)
     candidate_modifications: list[str] = Field(default_factory=list)
@@ -60,6 +70,8 @@ class ScoredDish(BaseModel):
     calories: MacroEstimate
     protein_g: MacroEstimate
     fibre_g: MacroEstimate
+    carbs_g: MacroEstimate
+    fat_g: MacroEstimate
     fit_score: float
     verdict: Verdict
     why: str
@@ -104,6 +116,8 @@ class Consumed(BaseModel):
     calories: int = 0
     protein_g: int = 0
     fibre_g: int = 0
+    carbs_g: int = 0
+    fat_g: int = 0
 
 
 class ScanRequest(BaseModel):
@@ -118,9 +132,13 @@ class TargetsSnapshot(BaseModel):
     calorie_target: int
     protein_target_g: int
     fibre_target_g: int
+    carbs_target_g: int = 0
+    fat_target_g: int = 0
     calories_remaining: int
     protein_remaining_g: int
     fibre_remaining_g: int
+    carbs_remaining_g: int = 0
+    fat_remaining_g: int = 0
 
 
 class ScanResponse(BaseModel):

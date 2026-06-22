@@ -26,6 +26,7 @@ FIXTURE = json.loads(
 PROFILE = StoredProfile(
     goal="lose_weight", strictness="balanced", dietary_prefs=[], allergies=[],
     calorie_target=1600, protein_target_g=100, fibre_target_g=25,
+    carbs_target_g=180, fat_target_g=50,
 )
 
 
@@ -64,7 +65,7 @@ def test_scan_returns_ranked_recommendations(client, monkeypatch):
         "source": "photo",
         "restaurant_name": "Test Grill",
         "image_base64": "ZHVtbXk=",
-        "consumed": {"calories": 200, "protein_g": 10, "fibre_g": 2},
+        "consumed": {"calories": 200, "protein_g": 10, "fibre_g": 2, "carbs_g": 20, "fat_g": 8},
     }
     r = client.post("/scan", json=body, headers={"Authorization": f"Bearer {_token()}"})
     assert r.status_code == 200
@@ -74,6 +75,14 @@ def test_scan_returns_ranked_recommendations(client, monkeypatch):
     assert len(data["dishes"]) == 4
     assert data["best_match"]["name"] == "Chicken shawarma bowl"
     assert data["targets_snapshot"]["calories_remaining"] == 1400  # 1600 - 200
+    # carbs/fat flow through targets + remaining (informational macros)
+    assert data["targets_snapshot"]["carbs_target_g"] == 180
+    assert data["targets_snapshot"]["fat_target_g"] == 50
+    assert data["targets_snapshot"]["carbs_remaining_g"] == 160  # 180 - 20
+    assert data["targets_snapshot"]["fat_remaining_g"] == 42     # 50 - 8
+    # extracted carbs/fat ranges become midpoint point-estimates on the scored dish
+    assert data["best_match"]["carbs_g"]["point"] == 65  # mid(55, 75)
+    assert data["best_match"]["fat_g"]["point"] == 22     # mid(18, 26)
     # critical: persisted scan is scoped to the verified JWT subject, not the body
     assert captured["user_id"] == USER_ID
     # an unreadable, wide-range dish is flagged hard_to_track

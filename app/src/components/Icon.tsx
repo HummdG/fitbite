@@ -1,0 +1,58 @@
+import { ComponentProps } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+
+import { theme } from '@/theme';
+
+type IoniconName = ComponentProps<typeof Ionicons>['name'];
+
+// Curated semantic icon set → Ionicons glyphs, so call sites stay stable even if
+// we swap the underlying font later.
+export const ICONS = {
+  home: 'home',
+  homeOutline: 'home-outline',
+  scan: 'scan',
+  scanOutline: 'scan-outline',
+  camera: 'camera-outline',
+  image: 'image-outline',
+  search: 'search-outline',
+  calendar: 'calendar',
+  calendarOutline: 'calendar-outline',
+  chart: 'stats-chart',
+  chartOutline: 'stats-chart-outline',
+  person: 'person',
+  personOutline: 'person-outline',
+  plus: 'add',
+  trash: 'trash-outline',
+  chevron: 'chevron-forward',
+  chevronBack: 'chevron-back',
+  chevronDown: 'chevron-down',
+  flame: 'flame-outline',
+  flameFilled: 'flame',
+  close: 'close',
+  check: 'checkmark',
+  checkCircle: 'checkmark-circle',
+  restaurant: 'restaurant-outline',
+  nutrition: 'nutrition-outline',
+  muscle: 'barbell-outline',
+  leaf: 'leaf-outline',
+  loseWeight: 'trending-down-outline',
+  calories: 'flame-outline',
+  protein: 'fitness-outline',
+  carbs: 'pizza-outline',
+  fat: 'water-outline',
+  fibre: 'leaf-outline',
+  settings: 'settings-outline',
+  logout: 'log-out-outline',
+  edit: 'create-outline',
+  add: 'add-circle-outline',
+  swap: 'swap-horizontal-outline',
+  info: 'information-circle-outline',
+} satisfies Record<string, IoniconName>;
+
+export type IconName = keyof typeof ICONS;
+
+type Props = { name: IconName; size?: number; color?: string };
+
+export function Icon({ name, size = 22, color = theme.color.textPrimary }: Props) {
+  return <Ionicons name={ICONS[name]} size={size} color={color} />;
+}

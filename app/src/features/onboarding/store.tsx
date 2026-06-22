@@ -1,6 +1,8 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 
-import type { ActivityLevel, Gender, Goal, Strictness } from '@/types/api';
+import type { ActivityLevel, Gender, Goal, MacroKey, Strictness, Targets } from '@/types/api';
+
+export const DEFAULT_DASHBOARD_WIDGETS: MacroKey[] = ['calories', 'protein', 'carbs', 'fat'];
 
 export type OnboardingDraft = {
   gender: Gender | null;
@@ -13,6 +15,9 @@ export type OnboardingDraft = {
   allergies: string;
   goal: Goal | null;
   strictness: Strictness;
+  // Computed on the "Your goal" step, displayed + saved on the "Your targets" step.
+  targets: Targets | null;
+  dashboard_widgets: MacroKey[];
 };
 
 const DEFAULT_DRAFT: OnboardingDraft = {
@@ -26,6 +31,8 @@ const DEFAULT_DRAFT: OnboardingDraft = {
   allergies: '',
   goal: null,
   strictness: 'balanced',
+  targets: null,
+  dashboard_widgets: DEFAULT_DASHBOARD_WIDGETS,
 };
 
 type Ctx = {

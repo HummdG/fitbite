@@ -16,7 +16,7 @@ from app.models.scan import ScanRequest, ScanResult
 
 _PROFILE_COLUMNS = (
     "goal,strictness,dietary_prefs,allergies,"
-    "calorie_target,protein_target_g,fibre_target_g"
+    "calorie_target,protein_target_g,fibre_target_g,carbs_target_g,fat_target_g"
 )
 
 

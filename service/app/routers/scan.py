@@ -39,10 +39,14 @@ def post_scan(
         protein_remaining_g=max(0, profile.protein_target_g - req.consumed.protein_g),
         fibre_remaining_g=max(0, profile.fibre_target_g - req.consumed.fibre_g),
     )
+    carbs_remaining_g = max(0, profile.carbs_target_g - req.consumed.carbs_g)
+    fat_remaining_g = max(0, profile.fat_target_g - req.consumed.fat_g)
     targets = Targets(
         calorie_target=profile.calorie_target,
         protein_target_g=profile.protein_target_g,
         fibre_target_g=profile.fibre_target_g,
+        carbs_target_g=profile.carbs_target_g,
+        fat_target_g=profile.fat_target_g,
         bmr=0,
         tdee=0,
     )
@@ -62,9 +66,13 @@ def post_scan(
         calorie_target=profile.calorie_target,
         protein_target_g=profile.protein_target_g,
         fibre_target_g=profile.fibre_target_g,
+        carbs_target_g=profile.carbs_target_g,
+        fat_target_g=profile.fat_target_g,
         calories_remaining=remaining.calories_remaining,
         protein_remaining_g=remaining.protein_remaining_g,
         fibre_remaining_g=remaining.fibre_remaining_g,
+        carbs_remaining_g=carbs_remaining_g,
+        fat_remaining_g=fat_remaining_g,
     )
     return ScanResponse(
         scan_id=scan_id,

@@ -27,6 +27,8 @@ class Targets(BaseModel):
     calorie_target: int
     protein_target_g: int
     fibre_target_g: int
+    carbs_target_g: int = 0
+    fat_target_g: int = 0
     bmr: int
     tdee: int
 
@@ -41,3 +43,5 @@ class StoredProfile(BaseModel):
     calorie_target: int
     protein_target_g: int
     fibre_target_g: int
+    carbs_target_g: int = 0
+    fat_target_g: int = 0

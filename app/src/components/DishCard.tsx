@@ -1,84 +1,77 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { theme } from '@/theme';
+import { theme, verdictColor } from '@/theme';
 import type { ScoredDish } from '@/types/api';
-import { Button } from './Button';
-import { Card } from './Card';
+import { Icon } from './Icon';
+import { MacroChips } from './MacroChips';
 import { Pill } from './Pill';
+import { Thumb } from './Thumb';
 
 type Props = {
   dish: ScoredDish;
-  onAdd?: () => void;
-  adding?: boolean;
+  onPress?: () => void;
   highlight?: boolean;
 };
 
-export function DishCard({ dish, onAdd, adding = false, highlight = false }: Props) {
+/** Compact, tappable menu-result row: thumbnail, name, verdict, macro chips and
+ * a verdict-coloured fit score. Tapping opens the item-details screen. */
+export function DishCard({ dish, onPress, highlight = false }: Props) {
+  const score = Math.round(dish.fit_score * 100);
+  const color = verdictColor(dish.verdict);
+
   return (
-    <Card style={highlight ? { borderColor: theme.color.pink, borderWidth: 2 } : undefined}>
-      <View style={styles.headerRow}>
-        <Text style={styles.name}>{dish.name}</Text>
-        <Pill verdict={dish.verdict} />
-      </View>
-
-      <View style={styles.macros}>
-        <Macro label="kcal" value={dish.calories.point} big />
-        <Macro label="protein" value={`${dish.protein_g.point}g`} />
-        <Macro label="fibre" value={`${dish.fibre_g.point}g`} />
-      </View>
-
-      {!!dish.why && <Text style={styles.why}>{dish.why}</Text>}
-
-      {dish.modifications.length > 0 && (
-        <View style={styles.mods}>
-          <Text style={styles.modsTitle}>Smart order</Text>
-          {dish.modifications.map((m, i) => (
-            <Text key={i} style={styles.mod}>
-              • {m}
-            </Text>
-          ))}
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      onPress={onPress}
+      disabled={!onPress}
+      style={({ pressed }) => [styles.card, highlight && styles.highlight, { opacity: pressed ? 0.92 : 1 }]}
+    >
+      <Thumb size={60} />
+      <View style={styles.middle}>
+        <Text style={styles.name} numberOfLines={1}>
+          {dish.name}
+        </Text>
+        <View style={styles.pillRow}>
+          <Pill verdict={dish.verdict} />
         </View>
-      )}
-
-      {onAdd && (
-        <Button
-          title={adding ? 'Adding…' : 'Add to Today'}
-          onPress={onAdd}
-          loading={adding}
-          style={{ marginTop: theme.spacing.md }}
+        <MacroChips
+          calories={dish.calories.point}
+          protein={dish.protein_g.point}
+          carbs={dish.carbs_g.point}
+          fat={dish.fat_g.point}
+          style={{ marginTop: 6 }}
         />
-      )}
-    </Card>
-  );
-}
-
-function Macro({ label, value, big = false }: { label: string; value: string | number; big?: boolean }) {
-  return (
-    <View style={styles.macro}>
-      <Text style={[styles.macroValue, big && { fontSize: theme.fontSize.title }]}>{value}</Text>
-      <Text style={styles.macroLabel}>{label}</Text>
-    </View>
+      </View>
+      <View style={styles.right}>
+        <Text style={[styles.score, { color }]}>{score}</Text>
+        <Text style={styles.scoreCaption}>fit</Text>
+        {onPress && <Icon name="chevron" size={18} color={theme.color.textSecondary} />}
+      </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  headerRow: {
+  card: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: theme.spacing.sm,
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    backgroundColor: theme.color.card,
+    borderColor: theme.color.border,
+    borderWidth: 1,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.md,
+    shadowColor: theme.shadow.card.color,
+    shadowOpacity: theme.shadow.card.opacity,
+    shadowRadius: theme.shadow.card.radius,
+    shadowOffset: { width: 0, height: theme.shadow.card.offsetY },
+    elevation: 2,
   },
-  name: { flex: 1, fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
-  macros: {
-    flexDirection: 'row',
-    gap: theme.spacing.xl,
-    marginTop: theme.spacing.md,
-  },
-  macro: { alignItems: 'flex-start' },
-  macroValue: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
-  macroLabel: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary },
-  why: { marginTop: theme.spacing.md, color: theme.color.textSecondary, fontSize: theme.fontSize.body, lineHeight: 20 },
-  mods: { marginTop: theme.spacing.md },
-  modsTitle: { fontSize: theme.fontSize.caption, fontWeight: '700', color: theme.color.purple, marginBottom: 4 },
-  mod: { color: theme.color.textPrimary, fontSize: theme.fontSize.body, lineHeight: 22 },
+  highlight: { borderColor: theme.color.pink, borderWidth: 2 },
+  middle: { flex: 1, gap: 2 },
+  name: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
+  pillRow: { flexDirection: 'row', marginTop: 2 },
+  right: { alignItems: 'center', minWidth: 40 },
+  score: { fontSize: theme.fontSize.title, fontWeight: '800' },
+  scoreCaption: { fontSize: 10, color: theme.color.textSecondary, marginTop: -2, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
 });

@@ -7,7 +7,9 @@ Expected values are hand-computed:
   calories     = round_to_10(TDEE * goal_factor), floored at 1200
   protein      = round_to_5(per_kg[goal] * weight)
   fibre        = clamp(round(14 * calories / 1000), 20, 38)
-All rounding is half-up.
+  fat          = round_to_5(calories * 0.27 / 9)
+  carbs        = max(0, round_to_5((calories - protein*4 - fat*9) / 4))
+All rounding is half-up. carbs/fat are informational (not scored).
 """
 
 import pytest
@@ -20,31 +22,36 @@ CASES = [
     (
         dict(gender="male", age=30, height_cm=180, current_weight_kg=80,
              activity_level="moderate", goal="lose_weight"),
-        dict(bmr=1780, tdee=2759, calorie_target=2210, protein_target_g=145, fibre_target_g=31),
+        dict(bmr=1780, tdee=2759, calorie_target=2210, protein_target_g=145, fibre_target_g=31,
+             carbs_target_g=260, fat_target_g=65),
     ),
     # female, light(1.375), high_protein(1.0)
     (
         dict(gender="female", age=28, height_cm=165, current_weight_kg=60,
              activity_level="light", goal="high_protein"),
-        dict(bmr=1330, tdee=1829, calorie_target=1830, protein_target_g=110, fibre_target_g=26),
+        dict(bmr=1330, tdee=1829, calorie_target=1830, protein_target_g=110, fibre_target_g=26,
+             carbs_target_g=225, fat_target_g=55),
     ),
     # female, sedentary(1.2), lose_weight — hits calorie FLOOR (1200) and fibre LOWER clamp (20)
     (
         dict(gender="female", age=70, height_cm=150, current_weight_kg=45,
              activity_level="sedentary", goal="lose_weight"),
-        dict(bmr=877, tdee=1052, calorie_target=1200, protein_target_g=80, fibre_target_g=20),
+        dict(bmr=877, tdee=1052, calorie_target=1200, protein_target_g=80, fibre_target_g=20,
+             carbs_target_g=140, fat_target_g=35),
     ),
     # male, active(1.725), gain_weight(1.10) — hits fibre UPPER clamp (38)
     (
         dict(gender="male", age=25, height_cm=175, current_weight_kg=70,
              activity_level="active", goal="gain_weight"),
-        dict(bmr=1674, tdee=2888, calorie_target=3180, protein_target_g=110, fibre_target_g=38),
+        dict(bmr=1674, tdee=2888, calorie_target=3180, protein_target_g=110, fibre_target_g=38,
+             carbs_target_g=470, fat_target_g=95),
     ),
     # male, very_active(1.9), eat_healthier(1.0)
     (
         dict(gender="male", age=35, height_cm=178, current_weight_kg=82,
              activity_level="very_active", goal="eat_healthier"),
-        dict(bmr=1763, tdee=3350, calorie_target=3350, protein_target_g=115, fibre_target_g=38),
+        dict(bmr=1763, tdee=3350, calorie_target=3350, protein_target_g=115, fibre_target_g=38,
+             carbs_target_g=500, fat_target_g=100),
     ),
 ]
 
@@ -57,6 +64,8 @@ def test_compute_targets(req, expected):
     assert t.calorie_target == expected["calorie_target"]
     assert t.protein_target_g == expected["protein_target_g"]
     assert t.fibre_target_g == expected["fibre_target_g"]
+    assert t.carbs_target_g == expected["carbs_target_g"]
+    assert t.fat_target_g == expected["fat_target_g"]
 
 
 def test_calorie_target_never_below_floor():
@@ -65,3 +74,15 @@ def test_calorie_target_never_below_floor():
         gender="female", age=65, height_cm=148, current_weight_kg=42,
         activity_level="sedentary", goal="lose_weight"))
     assert t.calorie_target >= 1200
+
+
+def test_carbs_and_fat_are_non_negative_and_energy_consistent():
+    # carbs is the energy remainder after protein+fat, so the macro split must
+    # never overshoot the calorie target (allowing for 5g rounding slack).
+    t = compute_targets(TargetRequest(
+        gender="male", age=30, height_cm=180, current_weight_kg=80,
+        activity_level="moderate", goal="high_protein"))
+    assert t.carbs_target_g >= 0
+    assert t.fat_target_g > 0
+    macro_calories = t.protein_target_g * 4 + t.fat_target_g * 9 + t.carbs_target_g * 4
+    assert abs(macro_calories - t.calorie_target) <= 30

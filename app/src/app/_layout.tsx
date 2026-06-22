@@ -28,17 +28,18 @@ function AuthGate() {
 
   useEffect(() => {
     if (loading) return;
-    const group = segments[0]; // '(auth)' | '(onboarding)' | '(tabs)' | 'scan' | undefined
+    const group = segments[0]; // '(auth)' | '(onboarding)' | '(tabs)' | 'scan' | 'welcome' | undefined
 
     if (!session) {
-      if (group !== '(auth)') router.replace('/sign-in');
+      // Welcome is the unauthenticated landing; sign-in/up live under (auth).
+      if (group !== '(auth)' && group !== 'welcome') router.replace('/welcome');
       return;
     }
     if (profileLoading) return;
 
     if (!profile) {
       if (group !== '(onboarding)') router.replace('/profile');
-    } else if (group === '(auth)' || group === '(onboarding)' || group === undefined) {
+    } else if (group === '(auth)' || group === '(onboarding)' || group === 'welcome' || group === undefined) {
       router.replace('/today');
     }
   }, [session, loading, profile, profileLoading, segments, router]);

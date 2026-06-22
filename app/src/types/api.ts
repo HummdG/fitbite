@@ -24,6 +24,8 @@ export interface Targets {
   calorie_target: number;
   protein_target_g: number;
   fibre_target_g: number;
+  carbs_target_g: number;
+  fat_target_g: number;
   bmr: number;
   tdee: number;
 }
@@ -46,6 +48,8 @@ export interface ScoredDish {
   calories: MacroEstimate;
   protein_g: MacroEstimate;
   fibre_g: MacroEstimate;
+  carbs_g: MacroEstimate;
+  fat_g: MacroEstimate;
   fit_score: number;
   verdict: Verdict;
   why: string;
@@ -57,15 +61,21 @@ export interface TargetsSnapshot {
   calorie_target: number;
   protein_target_g: number;
   fibre_target_g: number;
+  carbs_target_g: number;
+  fat_target_g: number;
   calories_remaining: number;
   protein_remaining_g: number;
   fibre_remaining_g: number;
+  carbs_remaining_g: number;
+  fat_remaining_g: number;
 }
 
 export interface Consumed {
   calories: number;
   protein_g: number;
   fibre_g: number;
+  carbs_g: number;
+  fat_g: number;
 }
 
 export interface ScanRequest {
@@ -102,7 +112,13 @@ export interface ProfileRow {
   calorie_target: number;
   protein_target_g: number;
   fibre_target_g: number;
+  carbs_target_g: number;
+  fat_target_g: number;
+  dashboard_widgets: MacroKey[];
 }
+
+/** Macros the Today dashboard can surface as rings (drives `dashboard_widgets`). */
+export type MacroKey = 'calories' | 'protein' | 'carbs' | 'fat' | 'fibre';
 
 export interface FoodLogRow {
   id: string;
@@ -113,6 +129,8 @@ export interface FoodLogRow {
   calories: number;
   protein_g: number;
   fibre_g: number;
+  carbs_g: number;
+  fat_g: number;
   source_scan_id: string | null;
   modifications: string[];
 }

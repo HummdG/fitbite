@@ -11,7 +11,29 @@ export function localDateKey(d = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
-export type Totals = { calories: number; protein_g: number; fibre_g: number };
+export type Totals = {
+  calories: number;
+  protein_g: number;
+  fibre_g: number;
+  carbs_g: number;
+  fat_g: number;
+};
+
+export const ZERO_TOTALS: Totals = { calories: 0, protein_g: 0, fibre_g: 0, carbs_g: 0, fat_g: 0 };
+
+/** Sum a set of food_log rows into daily totals (shared by Today + History). */
+export function sumTotals(rows: FoodLogRow[]): Totals {
+  return rows.reduce<Totals>(
+    (acc, r) => ({
+      calories: acc.calories + r.calories,
+      protein_g: acc.protein_g + r.protein_g,
+      fibre_g: acc.fibre_g + r.fibre_g,
+      carbs_g: acc.carbs_g + r.carbs_g,
+      fat_g: acc.fat_g + r.fat_g,
+    }),
+    { ...ZERO_TOTALS },
+  );
+}
 
 export function useToday(userId: string | undefined) {
   const logDate = localDateKey();
@@ -27,15 +49,7 @@ export function useToday(userId: string | undefined) {
         .order('logged_at', { ascending: true });
       if (error) throw error;
       const rows = (data as FoodLogRow[]) ?? [];
-      const totals = rows.reduce<Totals>(
-        (acc, r) => ({
-          calories: acc.calories + r.calories,
-          protein_g: acc.protein_g + r.protein_g,
-          fibre_g: acc.fibre_g + r.fibre_g,
-        }),
-        { calories: 0, protein_g: 0, fibre_g: 0 },
-      );
-      return { rows, totals, logDate };
+      return { rows, totals: sumTotals(rows), logDate };
     },
   });
 }
@@ -45,6 +59,8 @@ export type AddToTodayInput = {
   calories: number;
   protein_g: number;
   fibre_g: number;
+  carbs_g: number;
+  fat_g: number;
   source_scan_id?: string | null;
   modifications?: string[];
 };
@@ -55,6 +71,8 @@ export function dishToLogInput(dish: ScoredDish, scanId?: string): AddToTodayInp
     calories: dish.calories.point,
     protein_g: dish.protein_g.point,
     fibre_g: dish.fibre_g.point,
+    carbs_g: dish.carbs_g.point,
+    fat_g: dish.fat_g.point,
     source_scan_id: scanId ?? null,
     modifications: dish.modifications,
   };
@@ -71,6 +89,8 @@ export function useAddToToday(userId: string | undefined) {
         calories: input.calories,
         protein_g: input.protein_g,
         fibre_g: input.fibre_g,
+        carbs_g: input.carbs_g,
+        fat_g: input.fat_g,
         source_scan_id: input.source_scan_id ?? null,
         modifications: input.modifications ?? [],
       });
@@ -78,6 +98,21 @@ export function useAddToToday(userId: string | undefined) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['today', userId] });
+      qc.invalidateQueries({ queryKey: ['history', userId] });
+    },
+  });
+}
+
+export function useRemoveFromToday(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (rowId: string) => {
+      const { error } = await supabase.from('food_log').delete().eq('id', rowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['today', userId] });
+      qc.invalidateQueries({ queryKey: ['history', userId] });
     },
   });
 }
