@@ -1,21 +1,24 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 
 import { theme } from '@/theme';
+import { Icon } from './Icon';
 
-type Props = { step: number; total: number; label?: string };
+type Props = { step: number; total: number; onBack?: () => void };
 
-/** Onboarding progress: a row of segment bars + "n / total" counter. */
-export function Stepper({ step, total, label }: Props) {
+/** Onboarding top bar: an optional back chevron on the left and an "n / total"
+ * step counter on the right, matching the mockup header. */
+export function Stepper({ step, total, onBack }: Props) {
   return (
     <View style={styles.wrap}>
-      <View style={styles.bars}>
-        {Array.from({ length: total }).map((_, i) => (
-          <View key={i} style={[styles.bar, i < step ? styles.barOn : styles.barOff]} />
-        ))}
-      </View>
+      {onBack ? (
+        <Pressable accessibilityRole="button" onPress={onBack} hitSlop={10} style={styles.back}>
+          <Icon name="chevronBack" size={24} color={theme.color.textPrimary} />
+        </Pressable>
+      ) : (
+        <View style={styles.back} />
+      )}
       <Text style={styles.count}>
-        {label ? `${label} · ` : ''}
         {step} / {total}
       </Text>
     </View>
@@ -23,10 +26,12 @@ export function Stepper({ step, total, label }: Props) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: theme.spacing.lg },
-  bars: { flexDirection: 'row', gap: theme.spacing.xs },
-  bar: { flex: 1, height: 6, borderRadius: theme.radius.pill },
-  barOn: { backgroundColor: theme.color.pink },
-  barOff: { backgroundColor: theme.color.blushMist },
-  count: { marginTop: 6, fontSize: theme.fontSize.caption, color: theme.color.textSecondary, fontWeight: '600' },
+  wrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.lg,
+  },
+  back: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
+  count: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, fontWeight: '600' },
 });

@@ -9,9 +9,9 @@ export type Theme = typeof tokens;
 export type VerdictKey = keyof typeof tokens.verdict;
 
 /**
- * Maps a CSS-style fontWeight to the matching Poppins family. RN won't reliably
- * pick the right weight from `fontWeight` alone (especially on Android), so every
- * text style resolves to an explicit family. Used by the shared <Text> wrapper.
+ * Maps a CSS-style fontWeight to the matching Plus Jakarta Sans family. RN won't
+ * reliably pick the right weight from `fontWeight` alone (especially on Android),
+ * so every text style resolves to an explicit family. Used by the shared <Text>.
  */
 export const font = (weight?: string | number): string => {
   switch (String(weight)) {
@@ -20,10 +20,11 @@ export const font = (weight?: string | number): string => {
     case '600':
       return tokens.fontFamily.semibold;
     case '700':
-    case '800':
-    case '900':
     case 'bold':
       return tokens.fontFamily.bold;
+    case '800':
+    case '900':
+      return tokens.fontFamily.extrabold;
     default:
       return tokens.fontFamily.regular;
   }

@@ -20,7 +20,7 @@ type Props = {
  * gradient tile with a matching glyph. Different dishes get different tints, so
  * lists read as varied imagery rather than a wall of identical placeholders.
  */
-export function Thumb({ size = 56, radius = theme.radius.md, name, icon, style }: Props) {
+export function Thumb({ size = 56, radius = theme.radius.lg, name, icon, style }: Props) {
   const tile = foodTile(name);
   const glyph = icon ?? tile.icon;
   return (

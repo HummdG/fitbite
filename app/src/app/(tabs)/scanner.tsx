@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 
-import { Button, Card, Field, Icon, OptionRow, ScreenContainer, Thumb } from '@/components';
+import { Button, Field, Icon, OptionRow, ScreenContainer } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { lastScan } from '@/features/scan/lastScan';
 import { useScan } from '@/features/scan/useScan';
@@ -19,6 +19,7 @@ export default function Scanner() {
   const { session } = useSession();
   const { data: today } = useToday(session?.user?.id);
   const [restaurant, setRestaurant] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
 
   const consumed = today?.totals ?? { calories: 0, protein_g: 0, fibre_g: 0, carbs_g: 0, fat_g: 0 };
   const busy = scan.isPending;
@@ -83,32 +84,48 @@ export default function Scanner() {
   return (
     <ScreenContainer>
       <Text style={styles.title}>Scan a menu</Text>
-      <Text style={styles.sub}>Three simple ways to find your best bite in seconds.</Text>
+      <Text style={styles.sub}>Get instant insights and smarter choices.</Text>
 
-      <Card style={styles.illustration}>
-        <Thumb size={88} radius={theme.radius.lg} icon="restaurant" />
-        <Text style={styles.illustrationText}>Point at a menu, drop in a screenshot, or just name the place.</Text>
-      </Card>
-
-      <View style={{ gap: theme.spacing.sm }}>
-        <OptionRow icon="camera" title="Take a photo" subtitle="Snap the menu in front of you" onPress={takePhoto} disabled={busy} />
-        <OptionRow icon="image" title="Upload a screenshot" subtitle="Use a photo from your library" tint={theme.color.purple} onPress={uploadImage} disabled={busy} />
+      {/* Clipboard of scan options */}
+      <View style={styles.boardWrap}>
+        <View style={styles.boardBack} />
+        <View style={styles.board}>
+          <View style={styles.clip}>
+            <View style={styles.clipBar} />
+          </View>
+          <View style={{ gap: theme.spacing.md }}>
+            <OptionRow icon="camera" title="Take a photo" subtitle="Capture the menu" onPress={takePhoto} disabled={busy} />
+            <OptionRow icon="image" title="Upload screenshot" subtitle="Choose from your gallery" tint={theme.color.indigo} onPress={uploadImage} disabled={busy} />
+            <OptionRow
+              icon="search"
+              title="Search restaurant"
+              subtitle="Type the restaurant name"
+              tint={theme.color.berry}
+              onPress={() => setShowSearch((s) => !s)}
+              disabled={busy}
+            />
+          </View>
+        </View>
       </View>
 
-      <Card style={{ marginTop: theme.spacing.lg }}>
-        <View style={styles.searchHeader}>
-          <Icon name="search" size={18} color={theme.color.berry} />
-          <Text style={styles.searchTitle}>Search a restaurant</Text>
+      {showSearch && (
+        <View style={styles.searchBox}>
+          <Field
+            label="Restaurant name"
+            value={restaurant}
+            onChangeText={setRestaurant}
+            autoCapitalize="words"
+            placeholder="e.g. Nando's"
+            autoFocus
+          />
+          <Button title="Find best options" onPress={scanByName} loading={busy} disabled={busy} />
         </View>
-        <Field
-          label="Restaurant name"
-          value={restaurant}
-          onChangeText={setRestaurant}
-          autoCapitalize="words"
-          placeholder="e.g. Nando's"
-        />
-        <Button title="Find best options" onPress={scanByName} loading={busy} disabled={busy} />
-      </Card>
+      )}
+
+      <View style={styles.hint}>
+        <Icon name="sparkles" size={16} color={theme.color.pink} />
+        <Text style={styles.hintText}>We&apos;ll find the menu and extract the items.</Text>
+      </View>
 
       {busy && <Text style={styles.muted}>Reading the menu and ranking dishes…</Text>}
       <Text style={styles.disclaimer}>Estimates only — actual values vary by kitchen and portion.</Text>
@@ -117,12 +134,47 @@ export default function Scanner() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.md },
-  sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
-  illustration: { alignItems: 'center', gap: theme.spacing.md, marginBottom: theme.spacing.lg },
-  illustrationText: { textAlign: 'center', color: theme.color.textSecondary, fontSize: theme.fontSize.body, lineHeight: 20 },
-  searchHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: theme.spacing.sm },
-  searchTitle: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary, marginTop: theme.spacing.md, textAlign: 'center' },
+  sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.xl, textAlign: 'center' },
+  boardWrap: { marginTop: theme.spacing.lg },
+  // A faint offset sheet behind the board for a stacked-paper feel.
+  boardBack: {
+    position: 'absolute',
+    left: 10,
+    right: 10,
+    top: 8,
+    bottom: -8,
+    backgroundColor: '#F6E8D2',
+    borderRadius: theme.radius.xl,
+    opacity: 0.7,
+  },
+  board: {
+    backgroundColor: '#FCF3E4',
+    borderRadius: theme.radius.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xxl,
+    paddingBottom: theme.spacing.xl,
+    shadowColor: '#A9762B',
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  clip: {
+    position: 'absolute',
+    top: -14,
+    alignSelf: 'center',
+    width: 92,
+    height: 28,
+    borderRadius: 9,
+    backgroundColor: '#D8C29A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clipBar: { width: 54, height: 8, borderRadius: 4, backgroundColor: '#B6976A' },
+  searchBox: { marginTop: theme.spacing.lg, gap: theme.spacing.sm },
+  hint: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: theme.spacing.lg },
+  hintText: { color: theme.color.textSecondary, fontSize: theme.fontSize.body },
   muted: { color: theme.color.textSecondary, fontSize: theme.fontSize.body, marginTop: theme.spacing.lg, textAlign: 'center' },
   disclaimer: { color: theme.color.textSecondary, fontSize: theme.fontSize.caption, marginTop: theme.spacing.xl, textAlign: 'center' },
 });

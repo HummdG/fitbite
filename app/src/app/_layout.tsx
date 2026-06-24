@@ -7,19 +7,20 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-} from '@expo-google-fonts/poppins';
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 
 import { SessionProvider, useSession } from '@/features/auth/useSession';
 import { useProfile } from '@/features/profile/useProfile';
 import { queryClient } from '@/lib/queryClient';
 import { theme } from '@/theme';
 
-// Keep the branded splash up until the Poppins families are ready, so the very
-// first frame the user sees is already in-brand (never the system font).
+// Keep the branded splash up until the Plus Jakarta Sans families are ready, so
+// the very first frame the user sees is already in-brand (never the system font).
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function FullScreenLoader() {
@@ -70,10 +71,11 @@ function AuthGate() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
   const ready = fontsLoaded || !!fontError;
 

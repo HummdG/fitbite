@@ -27,6 +27,9 @@ export function ScreenContainer({ children, scroll = true, style }: Props) {
           paddingTop: theme.spacing.lg,
           paddingBottom: theme.spacing.xxl,
         },
+        // Non-scrolling screens fill the height so children can use flex
+        // (e.g. Welcome's space-between layout). Scrolling content must not.
+        !scroll && { flex: 1 },
         style,
       ]}
     >

@@ -11,18 +11,20 @@ type Props<T extends string> = {
   onChange: (value: T) => void;
 };
 
-/** Pill-style segmented control (strictness, 7/30/90-day range, …). */
+/** Row of pill tabs — active is a solid pink pill, others sit on a light blush
+ * fill. Used for the Progress range, macro tabs and the Profile units toggle. */
 export function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
   return (
-    <View style={styles.track}>
+    <View style={styles.row}>
       {options.map((o) => {
         const on = o.value === value;
         return (
           <Pressable
             key={o.value}
             accessibilityRole="button"
+            accessibilityState={{ selected: on }}
             onPress={() => onChange(o.value)}
-            style={[styles.seg, on && styles.segOn]}
+            style={[styles.seg, on ? styles.segOn : styles.segOff]}
           >
             <Text style={[styles.text, on && styles.textOn]}>{o.label}</Text>
           </Pressable>
@@ -33,28 +35,16 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
 }
 
 const styles = StyleSheet.create({
-  track: {
-    flexDirection: 'row',
-    backgroundColor: theme.color.blushMist,
-    borderRadius: theme.radius.pill,
-    padding: 4,
-    gap: 4,
-  },
+  row: { flexDirection: 'row', gap: theme.spacing.sm },
   seg: {
-    flex: 1,
     borderRadius: theme.radius.pill,
-    paddingVertical: 10,
+    paddingVertical: 9,
+    paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  segOn: {
-    backgroundColor: theme.color.card,
-    shadowColor: theme.shadow.card.color,
-    shadowOpacity: theme.shadow.card.opacity,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
+  segOn: { backgroundColor: theme.color.pink },
+  segOff: { backgroundColor: theme.color.blush },
   text: { fontSize: theme.fontSize.body, fontWeight: '600', color: theme.color.textSecondary },
-  textOn: { color: theme.color.pink },
+  textOn: { color: theme.color.textOnPink },
 });

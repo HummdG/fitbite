@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
-import { Button, Card, ScreenContainer, SegmentedControl, SelectCard, Stepper } from '@/components';
+import { Button, ScreenContainer, SelectCard, Stepper } from '@/components';
 import type { IconName } from '@/components';
 import { useOnboarding } from '@/features/onboarding/store';
 import { api } from '@/lib/api';
@@ -12,15 +12,15 @@ import type { Goal, Strictness } from '@/types/api';
 
 const GOALS: { label: string; value: Goal; icon: IconName }[] = [
   { label: 'Lose weight', value: 'lose_weight', icon: 'loseWeight' },
-  { label: 'Gain muscle', value: 'gain_weight', icon: 'muscle' },
+  { label: 'Gain weight', value: 'gain_weight', icon: 'gainWeight' },
   { label: 'Eat healthier', value: 'eat_healthier', icon: 'leaf' },
   { label: 'High protein', value: 'high_protein', icon: 'protein' },
 ];
 
-const STRICTNESS: { label: string; value: Strictness }[] = [
-  { label: 'Relaxed', value: 'relaxed' },
-  { label: 'Balanced', value: 'balanced' },
-  { label: 'Strict', value: 'strict' },
+const STRICTNESS: { label: string; value: Strictness; icon: IconName; tint: string; note: string }[] = [
+  { label: 'Relaxed', value: 'relaxed', icon: 'relaxed', tint: theme.color.macro.fibre, note: 'Relaxed gives you room to breathe — only the most over-budget dishes get marked down.' },
+  { label: 'Balanced', value: 'balanced', icon: 'balanced', tint: theme.color.pink, note: 'Balanced is our most popular choice. It keeps you on track without being too rigid.' },
+  { label: 'Strict', value: 'strict', icon: 'strict', tint: theme.color.berry, note: 'Strict scores dishes tightly against your targets — best when you want to stay precise.' },
 ];
 
 export default function GoalStep() {
@@ -58,33 +58,45 @@ export default function GoalStep() {
     }
   };
 
+  const note = STRICTNESS.find((s) => s.value === draft.strictness)?.note;
+
   return (
     <ScreenContainer>
-      <Stepper step={3} total={4} label="Your goal" />
+      <Stepper step={3} total={4} onBack={() => router.back()} />
       <Text style={styles.title}>Your goal</Text>
-      <Text style={styles.sub}>What should FitBite focus on?</Text>
+      <Text style={styles.sub}>What would you like to focus on?</Text>
 
-      <View style={styles.grid}>
+      <View style={styles.goalGrid}>
         {GOALS.map((g) => (
-          <SelectCard
-            key={g.value}
-            icon={g.icon}
-            label={g.label}
-            selected={draft.goal === g.value}
-            onPress={() => update({ goal: g.value })}
-          />
+          <View key={g.value} style={styles.goalCell}>
+            <SelectCard
+              icon={g.icon}
+              label={g.label}
+              selected={draft.goal === g.value}
+              onPress={() => update({ goal: g.value })}
+            />
+          </View>
         ))}
       </View>
 
       <Text style={styles.section}>How strict should we be?</Text>
-      <SegmentedControl options={STRICTNESS} value={draft.strictness} onChange={(v) => update({ strictness: v })} />
+      <Text style={styles.sectionSub}>This changes how we score dishes, not your targets.</Text>
+      <View style={styles.strictRow}>
+        {STRICTNESS.map((s) => (
+          <SelectCard
+            key={s.value}
+            icon={s.icon}
+            label={s.label}
+            tint={s.tint}
+            selected={draft.strictness === s.value}
+            onPress={() => update({ strictness: s.value })}
+          />
+        ))}
+      </View>
 
-      <Card style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.lg }}>
-        <Text style={styles.note}>
-          Strictness only changes how harshly over-budget dishes are scored — your calorie, protein, carbs
-          and fat targets stay the same.
-        </Text>
-      </Card>
+      <View style={styles.note}>
+        <Text style={styles.noteText}>{note}</Text>
+      </View>
 
       <Button title="Calculate my targets" onPress={onCalculate} loading={busy} disabled={!draft.goal} />
     </ScreenContainer>
@@ -92,9 +104,18 @@ export default function GoalStep() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-  section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
-  note: { color: theme.color.textSecondary, fontSize: theme.fontSize.body, lineHeight: 20 },
+  goalGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: theme.spacing.md },
+  goalCell: { width: '48%' },
+  section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.xl },
+  sectionSub: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginBottom: theme.spacing.md },
+  strictRow: { flexDirection: 'row', gap: theme.spacing.sm },
+  note: {
+    backgroundColor: theme.color.blush,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    marginVertical: theme.spacing.lg,
+  },
+  noteText: { color: theme.color.textSecondary, fontSize: theme.fontSize.body, lineHeight: 21 },
 });

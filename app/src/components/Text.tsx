@@ -4,7 +4,7 @@ import { font, theme } from '@/theme';
 
 /**
  * Drop-in replacement for React Native's <Text>. It reads the `fontWeight` from
- * the resolved style and swaps in the matching Poppins family, then strips the
+ * the resolved style and swaps in the matching Plus Jakarta Sans family, then strips the
  * raw weight so the platform doesn't apply faux-bolding on top. Default colour is
  * the brand's primary text so plain <Text> never renders pure black.
  */

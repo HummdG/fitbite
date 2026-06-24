@@ -1,13 +1,23 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
-import { Button, Card, DishCard, Icon, MacroStat, Pill, ScreenContainer, Thumb } from '@/components';
+import { Button, Card, DishCard, Icon, MacroStat, ScreenContainer, Tag, Thumb } from '@/components';
+import type { TagTone } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { lastScan } from '@/features/scan/lastScan';
 import { dishToLogInput, useAddToToday } from '@/features/today/useToday';
-import { theme, verdictColor } from '@/theme';
+import { theme, verdictLabel } from '@/theme';
+import type { Verdict } from '@/types/api';
+
+const TONE: Record<Verdict, TagTone> = {
+  great: 'good',
+  good_with_mods: 'info',
+  calorie_dense: 'warn',
+  hard_to_track: 'neutral',
+  not_ideal: 'bad',
+};
 
 export default function ItemDetails() {
   const router = useRouter();
@@ -16,18 +26,24 @@ export default function ItemDetails() {
   const add = useAddToToday(session?.user?.id);
   const [result] = useState(() => lastScan.get());
   const [adding, setAdding] = useState(false);
+  const [fav, setFav] = useState(false);
 
   const dish = result?.dishes.find((d) => d.name === name);
+  const isBest = !!dish && result?.best_match?.name === dish.name;
 
   const header = (
     <Stack.Screen
       options={{
         headerShown: true,
-        title: 'Item details',
+        title: '',
         headerStyle: { backgroundColor: theme.color.background },
-        headerTintColor: theme.color.purple,
-        headerTitleStyle: { fontFamily: theme.fontFamily.semibold, color: theme.color.textPrimary },
+        headerTintColor: theme.color.textPrimary,
         headerShadowVisible: false,
+        headerRight: () => (
+          <Pressable onPress={() => setFav((f) => !f)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Favourite">
+            <Icon name={fav ? 'heart' : 'heartOutline'} size={24} color={theme.color.pink} />
+          </Pressable>
+        ),
       }}
     />
   );
@@ -42,7 +58,6 @@ export default function ItemDetails() {
     );
   }
 
-  const score = Math.round(dish.fit_score * 100);
   const alternatives = (result?.good_options ?? []).filter((d) => d.name !== dish.name).slice(0, 3);
 
   const onAdd = async () => {
@@ -64,24 +79,28 @@ export default function ItemDetails() {
     <ScreenContainer>
       {header}
 
-      <Thumb size={160} radius={theme.radius.xl} name={dish.name} style={styles.hero} />
+      <Thumb size={160} name={dish.name} style={styles.hero} />
 
-      <View style={styles.titleRow}>
-        <Text style={styles.name}>{dish.name}</Text>
-        <View style={styles.scoreBadge}>
-          <Text style={[styles.scoreNum, { color: verdictColor(dish.verdict) }]}>{score}</Text>
-          <Text style={styles.scoreCaption}>fit</Text>
-        </View>
+      <Text style={styles.name}>{dish.name}</Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.restaurant} numberOfLines={1}>
+          {result?.restaurant_name ?? 'Estimated values'}
+        </Text>
+        <Tag
+          label={isBest ? 'Best match' : verdictLabel(dish.verdict)}
+          tone={isBest ? 'good' : TONE[dish.verdict] ?? 'neutral'}
+        />
       </View>
-      <View style={styles.pillRow}>
-        <Pill verdict={dish.verdict} />
-      </View>
+
+      <Text style={styles.kcal}>
+        {dish.calories.point.toLocaleString()}
+        <Text style={styles.kcalUnit}> kcal</Text>
+      </Text>
 
       <View style={styles.grid}>
-        <MacroStat icon="calories" label="Calories" value={dish.calories.point} unit="kcal" color={theme.color.macro.calories} />
-        <MacroStat icon="protein" label="Protein" value={dish.protein_g.point} unit="g" color={theme.color.macro.protein} />
-        <MacroStat icon="carbs" label="Carbs" value={dish.carbs_g.point} unit="g" color={theme.color.macro.carbs} />
-        <MacroStat icon="fat" label="Fat" value={dish.fat_g.point} unit="g" color={theme.color.macro.fat} />
+        <MacroStat label="Protein" value={dish.protein_g.point} unit="g" color={theme.color.macro.protein} />
+        <MacroStat label="Carbs" value={dish.carbs_g.point} unit="g" color={theme.color.macro.carbs} />
+        <MacroStat label="Fibre" value={dish.fibre_g.point} unit="g" color={theme.color.macro.fibre} />
       </View>
 
       <Text style={styles.section}>About this item</Text>
@@ -96,10 +115,10 @@ export default function ItemDetails() {
       {dish.modifications.length > 0 && (
         <>
           <Text style={styles.section}>Better swaps</Text>
-          <Card style={{ marginBottom: theme.spacing.lg, gap: 8 }}>
+          <Card style={{ marginBottom: theme.spacing.lg, gap: 10 }}>
             {dish.modifications.map((m, i) => (
               <View key={i} style={styles.swapRow}>
-                <Icon name="swap" size={16} color={theme.color.purple} />
+                <Icon name="swap" size={16} color={theme.color.macro.fibre} />
                 <Text style={styles.body}>{m}</Text>
               </View>
             ))}
@@ -125,14 +144,13 @@ export default function ItemDetails() {
 }
 
 const styles = StyleSheet.create({
-  hero: { alignSelf: 'center', marginBottom: theme.spacing.lg },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: theme.spacing.md },
-  name: { flex: 1, fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary },
-  scoreBadge: { alignItems: 'center' },
-  scoreNum: { fontSize: theme.fontSize.headline, fontWeight: '800' },
-  scoreCaption: { fontSize: 10, color: theme.color.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: -4 },
-  pillRow: { flexDirection: 'row', marginTop: theme.spacing.sm, marginBottom: theme.spacing.lg },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, marginBottom: theme.spacing.sm },
+  hero: { width: '100%', height: 190, borderRadius: theme.radius.xl, marginBottom: theme.spacing.lg },
+  name: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.md, marginTop: 4 },
+  restaurant: { flex: 1, fontSize: theme.fontSize.body, color: theme.color.textSecondary },
+  kcal: { fontSize: theme.fontSize.display, fontWeight: '800', color: theme.color.textPrimary, marginTop: theme.spacing.sm },
+  kcalUnit: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textSecondary },
+  grid: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
   section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.md, marginBottom: theme.spacing.md },
   body: { color: theme.color.textPrimary, fontSize: theme.fontSize.body, lineHeight: 21, flex: 1 },
   ingredients: { color: theme.color.textSecondary, fontSize: theme.fontSize.caption, lineHeight: 18 },

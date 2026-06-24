@@ -12,16 +12,22 @@ export default function Welcome() {
     <ScreenContainer scroll={false}>
       <View style={styles.wrap}>
         <View style={styles.hero}>
-          <Logo size={132} withWordmark style={{ marginBottom: theme.spacing.sm }} />
+          <Logo size={232} />
           <Text style={styles.tagline}>
             Find the <Text style={styles.taglineAccent}>bite</Text> that fits.
           </Text>
-          <Text style={styles.sub}>Take the guesswork out of eating out — scan a menu and get the picks that fit your goals.</Text>
+          <Text style={styles.sub}>
+            Take the guesswork out of eating out — scan a menu and get the picks that fit your goals.
+          </Text>
         </View>
 
         <View style={styles.actions}>
           <Button title="Get started" onPress={() => router.push('/sign-up')} />
-          <Button title="I already have an account" variant="secondary" onPress={() => router.push('/sign-in')} />
+          <Button title="I have an account" variant="secondary" onPress={() => router.push('/sign-in')} />
+          <Text style={styles.terms}>
+            By continuing, you agree to our <Text style={styles.termsLink}>Terms</Text> and{' '}
+            <Text style={styles.termsLink}>Privacy Policy</Text>.
+          </Text>
         </View>
       </View>
     </ScreenContainer>
@@ -31,7 +37,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   wrap: { flex: 1, justifyContent: 'space-between', paddingVertical: theme.spacing.xxl },
   hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing.md },
-  tagline: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary, textAlign: 'center' },
+  tagline: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary, textAlign: 'center' },
   taglineAccent: { color: theme.color.pink },
   sub: {
     fontSize: theme.fontSize.body,
@@ -41,4 +47,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
   },
   actions: { gap: theme.spacing.sm },
+  terms: {
+    fontSize: theme.fontSize.caption,
+    color: theme.color.textSecondary,
+    textAlign: 'center',
+    marginTop: theme.spacing.sm,
+    lineHeight: 18,
+  },
+  termsLink: { color: theme.color.pink, fontWeight: '700' },
 });

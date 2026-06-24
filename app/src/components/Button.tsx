@@ -60,7 +60,7 @@ export function Button({
     );
   }
 
-  // Secondary — quiet, light blush fill with plum text.
+  // Secondary — quiet white fill with a hairline border and plum text.
   const fg = theme.color.plumShadow;
   return (
     <Pressable
@@ -91,7 +91,9 @@ const styles = StyleSheet.create({
     minHeight: 54,
   },
   secondary: {
-    backgroundColor: theme.color.blushMist,
+    backgroundColor: theme.color.white,
+    borderWidth: 1.5,
+    borderColor: theme.color.border,
   },
   label: { fontSize: theme.fontSize.subtitle, fontWeight: '700' },
 });

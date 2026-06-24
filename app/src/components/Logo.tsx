@@ -1,79 +1,40 @@
-import { View, ViewStyle } from 'react-native';
-import Svg, { Circle, Defs, G, LinearGradient, Mask, Path, Rect, Stop } from 'react-native-svg';
+import { Image, ImageStyle, StyleProp } from 'react-native';
 
-import { theme } from '@/theme';
-import { Text } from './Text';
+// The real FitBite artwork (Logo V2) with its background keyed out — generated
+// from assets/logo.png by `node scripts/gen-icons.mjs`. Using the actual art (not
+// a redrawn vector) keeps the logo pixel-identical to the brand mark; the wordmark
+// font is baked into the lockup, so it always matches regardless of the UI font.
+const LOCKUP = require('../../assets/logo-lockup.png');
+const MARK = require('../../assets/logo-mark.png');
+
+// Intrinsic aspect ratios (width / height) of the trimmed exports.
+const LOCKUP_RATIO = 841 / 737;
+const MARK_RATIO = 583 / 450;
 
 type Props = {
-  /** Width/height of the cloche mark in px. */
+  /** Rendered width in px (height follows the artwork's aspect ratio). */
   size?: number;
-  /** Render the "FitBite" wordmark beneath the mark. */
-  withWordmark?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ImageStyle>;
 };
 
-/**
- * The FitBite cloche mark — a flat, gradient food dome with a bite out of the
- * upper-right — drawn as vectors so it stays crisp at every size (replaces the
- * old raster logo.png). The bite is an alpha mask, so it shows whatever sits
- * behind the logo regardless of background colour.
- */
-export function LogoMark({ size = 96 }: { size?: number }) {
-  const plum = theme.color.plumShadow;
-  const sw = 5;
+/** The cloche mark only (no wordmark). */
+export function LogoMark({ size = 96, style }: Props) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 120 120">
-      <Defs>
-        <LinearGradient id="fbDome" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#FB6FB0" />
-          <Stop offset="0.55" stopColor="#F13A94" />
-          <Stop offset="1" stopColor="#B5179E" />
-        </LinearGradient>
-        <Mask id="fbBite">
-          <Rect x="0" y="0" width="120" height="120" fill="#fff" />
-          <Circle cx="85" cy="54" r="15" fill="#000" />
-        </Mask>
-      </Defs>
-
-      {/* plate */}
-      <Rect
-        x="20"
-        y="84"
-        width="80"
-        height="11"
-        rx="5.5"
-        fill="url(#fbDome)"
-        stroke={plum}
-        strokeWidth={sw}
-        strokeLinejoin="round"
-      />
-
-      {/* dome + knob, with the bite masked out */}
-      <G mask="url(#fbBite)">
-        <Path
-          d="M 30 84 A 30 30 0 0 1 90 84 Z"
-          fill="url(#fbDome)"
-          stroke={plum}
-          strokeWidth={sw}
-          strokeLinejoin="round"
-        />
-        <Circle cx="60" cy="49" r="5.5" fill="url(#fbDome)" stroke={plum} strokeWidth={sw} />
-      </G>
-    </Svg>
+    <Image
+      source={MARK}
+      resizeMode="contain"
+      style={[{ width: size, height: Math.round(size / MARK_RATIO) }, style]}
+    />
   );
 }
 
-export function Logo({ size = 96, withWordmark = false, style }: Props) {
-  const wordSize = Math.round(size * 0.34);
+/** The full FitBite lockup — cloche mark above the "FitBite" wordmark. */
+export function Logo({ size = 208, style }: Props) {
   return (
-    <View style={[{ alignItems: 'center' }, style]}>
-      <LogoMark size={size} />
-      {withWordmark && (
-        <Text style={{ marginTop: Math.round(size * 0.08), fontSize: wordSize, fontWeight: '700' }}>
-          <Text style={{ color: theme.color.plumShadow, fontSize: wordSize, fontWeight: '700' }}>Fit</Text>
-          <Text style={{ color: theme.color.pink, fontSize: wordSize, fontWeight: '700' }}>Bite</Text>
-        </Text>
-      )}
-    </View>
+    <Image
+      source={LOCKUP}
+      resizeMode="contain"
+      style={[{ width: size, height: Math.round(size / LOCKUP_RATIO) }, style]}
+    />
   );
 }

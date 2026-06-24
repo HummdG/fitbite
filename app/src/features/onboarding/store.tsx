@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 
 import type { ActivityLevel, Gender, Goal, MacroKey, Strictness, Targets } from '@/types/api';
 
-export const DEFAULT_DASHBOARD_WIDGETS: MacroKey[] = ['calories', 'protein', 'carbs', 'fat'];
+export const DEFAULT_DASHBOARD_WIDGETS: MacroKey[] = ['calories', 'protein', 'fibre'];
 
 export type OnboardingDraft = {
   gender: Gender | null;

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 
-import { theme } from '@/theme';
+import { theme, withAlpha } from '@/theme';
 import { Icon, IconName } from './Icon';
 
 type Props = {
@@ -10,23 +10,39 @@ type Props = {
   subtitle?: string;
   selected: boolean;
   onPress: () => void;
+  /** Tint for the icon chip (defaults to brand pink). */
+  tint?: string;
+  /** Render a checkbox circle in the corner (dashboard-widget chooser). */
+  checkbox?: boolean;
+  disabled?: boolean;
 };
 
-/** Selectable icon card (onboarding goal choices, dashboard-widget chooser). */
-export function SelectCard({ icon, label, subtitle, selected, onPress }: Props) {
+/** Selectable icon card — onboarding goal/strictness choices and the dashboard
+ * widget chooser. With `checkbox`, a circle in the corner reflects selection. */
+export function SelectCard({ icon, label, subtitle, selected, onPress, tint = theme.color.pink, checkbox, disabled }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled }}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, selected && styles.cardOn, { opacity: pressed ? 0.92 : 1 }]}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.card,
+        selected && styles.cardOn,
+        { opacity: disabled ? 0.45 : pressed ? 0.92 : 1 },
+      ]}
     >
-      <View style={[styles.iconWrap, selected && styles.iconWrapOn]}>
-        <Icon name={icon} size={24} color={selected ? theme.color.textOnPink : theme.color.pink} />
+      {checkbox && (
+        <View style={[styles.box, selected ? styles.boxOn : styles.boxOff]}>
+          {selected && <Icon name="check" size={13} color={theme.color.textOnPink} />}
+        </View>
+      )}
+      <View style={[styles.iconWrap, { backgroundColor: withAlpha(tint, 0x1f) }]}>
+        <Icon name={icon} size={22} color={tint} />
       </View>
-      <Text style={[styles.label, selected && styles.labelOn]}>{label}</Text>
+      <Text style={styles.label}>{label}</Text>
       {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-      {selected && (
+      {!checkbox && selected && (
         <View style={styles.check}>
           <Icon name="checkCircle" size={20} color={theme.color.pink} />
         </View>
@@ -38,26 +54,29 @@ export function SelectCard({ icon, label, subtitle, selected, onPress }: Props) 
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minWidth: 140,
+    minWidth: 96,
     backgroundColor: theme.color.card,
     borderColor: theme.color.border,
     borderWidth: 1.5,
     borderRadius: theme.radius.lg,
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
     gap: 6,
   },
-  cardOn: { borderColor: theme.color.pink, backgroundColor: `${theme.color.pink}0D` },
-  iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: theme.radius.md,
-    backgroundColor: `${theme.color.pink}1A`,
+  cardOn: { borderColor: theme.color.pink, backgroundColor: withAlpha(theme.color.pink, 0x0f) },
+  iconWrap: { width: 40, height: 40, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
+  label: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
+  subtitle: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary },
+  check: { position: 'absolute', top: theme.spacing.sm, right: theme.spacing.sm },
+  box: {
+    position: 'absolute',
+    top: theme.spacing.sm,
+    right: theme.spacing.sm,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapOn: { backgroundColor: theme.color.pink },
-  label: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
-  labelOn: { color: theme.color.pink },
-  subtitle: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary },
-  check: { position: 'absolute', top: theme.spacing.md, right: theme.spacing.md },
+  boxOn: { backgroundColor: theme.color.pink },
+  boxOff: { borderWidth: 1.5, borderColor: theme.color.border },
 });

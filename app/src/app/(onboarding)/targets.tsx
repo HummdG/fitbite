@@ -4,7 +4,7 @@ import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Button, MacroStat, ScreenContainer, SelectCard, Stepper } from '@/components';
+import { Button, ScreenContainer, SelectCard, Stepper, TargetRow } from '@/components';
 import type { IconName } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { useOnboarding } from '@/features/onboarding/store';
@@ -12,11 +12,18 @@ import { supabase } from '@/lib/supabase';
 import { theme } from '@/theme';
 import type { MacroKey } from '@/types/api';
 
-const WIDGETS: { key: MacroKey; label: string; icon: IconName; color: string }[] = [
-  { key: 'calories', label: 'Calories', icon: 'calories', color: theme.color.macro.calories },
-  { key: 'protein', label: 'Protein', icon: 'protein', color: theme.color.macro.protein },
-  { key: 'carbs', label: 'Carbs', icon: 'carbs', color: theme.color.macro.carbs },
-  { key: 'fat', label: 'Fat', icon: 'fat', color: theme.color.macro.fat },
+// Data-backed widgets map to a MacroKey; the rest are shown to match the mockup
+// but disabled until there's a data source for them.
+type Widget = { key: string; macro?: MacroKey; label: string; icon: IconName; color: string };
+const WIDGETS: Widget[] = [
+  { key: 'calories', macro: 'calories', label: 'Calories', icon: 'calories', color: theme.color.macro.calories },
+  { key: 'protein', macro: 'protein', label: 'Protein', icon: 'protein', color: theme.color.macro.protein },
+  { key: 'fibre', macro: 'fibre', label: 'Fibre', icon: 'fibre', color: theme.color.macro.fibre },
+  { key: 'carbs', macro: 'carbs', label: 'Carbs', icon: 'carbs', color: theme.color.macro.carbs },
+  { key: 'fat', macro: 'fat', label: 'Fat', icon: 'fat', color: theme.color.macro.fat },
+  { key: 'water', label: 'Water', icon: 'water', color: theme.color.indigo },
+  { key: 'weight', label: 'Weight', icon: 'weight', color: theme.color.berry },
+  { key: 'steps', label: 'Steps', icon: 'steps', color: theme.color.macro.fibre },
 ];
 
 export default function TargetsStep() {
@@ -31,7 +38,7 @@ export default function TargetsStep() {
   if (!targets) {
     return (
       <ScreenContainer>
-        <Stepper step={4} total={4} label="Your targets" />
+        <Stepper step={4} total={4} onBack={() => router.back()} />
         <Text style={styles.sub}>Let&apos;s calculate your targets first.</Text>
         <Button title="Back to goal" onPress={() => router.replace('/goal')} />
       </ScreenContainer>
@@ -94,27 +101,31 @@ export default function TargetsStep() {
 
   return (
     <ScreenContainer>
-      <Stepper step={4} total={4} label="Your targets" />
+      <Stepper step={4} total={4} onBack={() => router.back()} />
       <Text style={styles.title}>Your targets</Text>
-      <Text style={styles.sub}>Here are your personalised daily targets.</Text>
+      <Text style={styles.sub}>Here are your daily targets.</Text>
 
-      <View style={styles.grid}>
-        <MacroStat icon="calories" label="Calories" value={targets.calorie_target} unit="kcal" color={theme.color.macro.calories} />
-        <MacroStat icon="protein" label="Protein" value={targets.protein_target_g} unit="g" color={theme.color.macro.protein} />
-        <MacroStat icon="carbs" label="Carbs" value={targets.carbs_target_g} unit="g" color={theme.color.macro.carbs} />
-        <MacroStat icon="fat" label="Fat" value={targets.fat_target_g} unit="g" color={theme.color.macro.fat} />
+      <View style={styles.targets}>
+        <TargetRow icon="calories" label="Calories" value={targets.calorie_target} unit="kcal" color={theme.color.macro.calories} barColor={theme.color.pink} progress={1} />
+        <TargetRow icon="protein" label="Protein" value={targets.protein_target_g} unit="g" color={theme.color.macro.protein} barColor={theme.color.pink} progress={1} />
+        <TargetRow icon="fibre" label="Fibre" value={targets.fibre_target_g} unit="g" color={theme.color.macro.fibre} barColor={theme.color.pink} progress={1} />
       </View>
 
       <Text style={styles.section}>Choose what appears on your dashboard</Text>
+      <Text style={styles.sectionSub}>You can change this later in Profile.</Text>
       <View style={styles.grid}>
         {WIDGETS.map((w) => (
-          <SelectCard
-            key={w.key}
-            icon={w.icon}
-            label={w.label}
-            selected={draft.dashboard_widgets.includes(w.key)}
-            onPress={() => toggleWidget(w.key)}
-          />
+          <View key={w.key} style={styles.cell}>
+            <SelectCard
+              icon={w.icon}
+              label={w.label}
+              tint={w.color}
+              checkbox
+              disabled={!w.macro}
+              selected={!!w.macro && draft.dashboard_widgets.includes(w.macro)}
+              onPress={() => w.macro && toggleWidget(w.macro)}
+            />
+          </View>
         ))}
       </View>
 
@@ -124,8 +135,11 @@ export default function TargetsStep() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
-  section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
+  targets: { gap: theme.spacing.md },
+  section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginTop: theme.spacing.xl },
+  sectionSub: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginBottom: theme.spacing.md },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: theme.spacing.md },
+  cell: { width: '31%' },
 });

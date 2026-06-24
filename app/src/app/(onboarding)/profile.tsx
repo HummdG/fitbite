@@ -1,8 +1,8 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
-import { Button, ChipGroup, Field, ScreenContainer, Stepper } from '@/components';
+import { Button, ChipGroup, Field, FieldRow, ScreenContainer, Stepper } from '@/components';
 import { useOnboarding } from '@/features/onboarding/store';
 import { theme } from '@/theme';
 import type { ActivityLevel, Gender } from '@/types/api';
@@ -30,7 +30,7 @@ export default function ProfileStep() {
 
   const onContinue = () => {
     if (!draft.gender || !draft.activity_level) {
-      Alert.alert('Almost there', 'Please choose your sex and activity level.');
+      Alert.alert('Almost there', 'Please choose your gender and activity level.');
       return;
     }
     if (!draft.age || !draft.height_cm || !draft.current_weight_kg) {
@@ -42,16 +42,18 @@ export default function ProfileStep() {
 
   return (
     <ScreenContainer>
-      <Stepper step={2} total={4} label="About you" />
+      <Stepper step={2} total={4} onBack={() => router.back()} />
       <Text style={styles.title}>About you</Text>
-      <Text style={styles.sub}>Help us personalise your daily targets.</Text>
+      <Text style={styles.sub}>Help us personalise your targets.</Text>
 
-      <ChipGroup label="Sex" options={GENDERS} value={draft.gender} onChange={(v) => update({ gender: v as Gender })} />
+      <ChipGroup label="Gender" options={GENDERS} value={draft.gender} onChange={(v) => update({ gender: v as Gender })} />
 
-      <Field label="Age" keyboardType="number-pad" value={draft.age} onChangeText={(v) => update({ age: v })} placeholder="e.g. 30" />
-      <Field label="Height (cm)" keyboardType="numeric" value={draft.height_cm} onChangeText={(v) => update({ height_cm: v })} placeholder="e.g. 175" />
-      <Field label="Current weight (kg)" keyboardType="numeric" value={draft.current_weight_kg} onChangeText={(v) => update({ current_weight_kg: v })} placeholder="e.g. 80" />
-      <Field label="Target weight (kg) — optional" keyboardType="numeric" value={draft.target_weight_kg} onChangeText={(v) => update({ target_weight_kg: v })} placeholder="e.g. 75" />
+      <View style={styles.fields}>
+        <FieldRow icon="calendar" label="Age" tint={theme.color.pink} keyboardType="number-pad" value={draft.age} onChangeText={(v) => update({ age: v })} placeholder="30" />
+        <FieldRow icon="height" label="Height" unit="cm" tint={theme.color.indigo} keyboardType="numeric" value={draft.height_cm} onChangeText={(v) => update({ height_cm: v })} placeholder="175" />
+        <FieldRow icon="weight" label="Current weight" unit="kg" tint={theme.color.macro.fibre} keyboardType="numeric" value={draft.current_weight_kg} onChangeText={(v) => update({ current_weight_kg: v })} placeholder="80" />
+        <FieldRow icon="flag" label="Target weight" unit="kg" tint={theme.color.berry} keyboardType="numeric" value={draft.target_weight_kg} onChangeText={(v) => update({ target_weight_kg: v })} placeholder="75" />
+      </View>
 
       <ChipGroup
         label="Activity level"
@@ -69,7 +71,7 @@ export default function ProfileStep() {
       />
 
       <Field
-        label="Allergies (optional, comma-separated)"
+        label="Allergies (optional)"
         value={draft.allergies}
         onChangeText={(v) => update({ allergies: v })}
         placeholder="e.g. peanut, shellfish"
@@ -81,6 +83,7 @@ export default function ProfileStep() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: theme.fontSize.title, fontWeight: '700', color: theme.color.textPrimary },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
+  fields: { gap: theme.spacing.sm, marginBottom: theme.spacing.md },
 });

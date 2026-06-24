@@ -28,7 +28,7 @@ export default function SignUp() {
   return (
     <ScreenContainer>
       <View style={styles.header}>
-        <Logo size={60} withWordmark style={{ marginBottom: theme.spacing.md }} />
+        <Logo size={132} style={{ marginBottom: theme.spacing.md }} />
         <Text style={styles.title}>Create your account</Text>
         <Text style={styles.sub}>Set your goals once — then just scan and go.</Text>
       </View>
@@ -60,7 +60,7 @@ export default function SignUp() {
 
 const styles = StyleSheet.create({
   header: { alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl },
-  title: { fontSize: theme.fontSize.headline, fontWeight: '700', color: theme.color.textPrimary },
+  title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginTop: 4, textAlign: 'center' },
-  link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.purple, fontFamily: theme.fontFamily.semibold },
+  link: { marginTop: theme.spacing.xl, textAlign: 'center', color: theme.color.pink, fontFamily: theme.fontFamily.semibold },
 });
