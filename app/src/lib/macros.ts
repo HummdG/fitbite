@@ -1,5 +1,5 @@
+import type { IconName } from '@/components/Icon';
 import { theme } from '@/theme';
-import { MACRO_EMOJI } from '@/lib/emoji';
 import type { MacroKey } from '@/types/api';
 
 /**
@@ -11,7 +11,7 @@ import type { MacroKey } from '@/types/api';
 export interface MacroMeta {
   key: MacroKey;
   label: string;
-  emoji: string;
+  icon: IconName;
   color: string;
   /** Short unit shown on the dials, e.g. 'kcal' | 'g'. */
   unit: string;
@@ -30,7 +30,7 @@ export const MACROS: Record<MacroKey, MacroMeta> = {
   calories: {
     key: 'calories',
     label: 'Calories',
-    emoji: MACRO_EMOJI.calories,
+    icon: 'calories',
     color: theme.color.macro.calories,
     unit: 'kcal',
     goalUnit: 'kcal/day',
@@ -40,7 +40,7 @@ export const MACROS: Record<MacroKey, MacroMeta> = {
   protein: {
     key: 'protein',
     label: 'Protein',
-    emoji: MACRO_EMOJI.protein,
+    icon: 'protein',
     color: theme.color.macro.protein,
     unit: 'g',
     goalUnit: 'g/day',
@@ -50,7 +50,7 @@ export const MACROS: Record<MacroKey, MacroMeta> = {
   carbs: {
     key: 'carbs',
     label: 'Carbs',
-    emoji: MACRO_EMOJI.carbs,
+    icon: 'carbs',
     color: theme.color.macro.carbs,
     unit: 'g',
     goalUnit: 'g/day',
@@ -60,7 +60,7 @@ export const MACROS: Record<MacroKey, MacroMeta> = {
   fat: {
     key: 'fat',
     label: 'Fat',
-    emoji: MACRO_EMOJI.fat,
+    icon: 'fat',
     color: theme.color.macro.fat,
     unit: 'g',
     goalUnit: 'g/day',
@@ -70,7 +70,7 @@ export const MACROS: Record<MacroKey, MacroMeta> = {
   fibre: {
     key: 'fibre',
     label: 'Fibre',
-    emoji: MACRO_EMOJI.fibre,
+    icon: 'fibre',
     color: theme.color.macro.fibre,
     unit: 'g',
     goalUnit: 'g/day',

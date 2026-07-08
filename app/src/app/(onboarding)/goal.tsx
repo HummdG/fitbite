@@ -8,22 +8,21 @@ import type { IconName } from '@/components';
 import { confirmSignOut } from '@/features/auth/useSession';
 import { useOnboarding } from '@/features/onboarding/store';
 import { useSafeBack } from '@/lib/nav';
-import { GOAL_EMOJI, STRICTNESS_EMOJI } from '@/lib/emoji';
 import { api } from '@/lib/api';
 import { theme } from '@/theme';
 import type { Goal, Strictness } from '@/types/api';
 
-const GOALS: { label: string; value: Goal; icon: IconName; emoji: string }[] = [
-  { label: 'Lose weight', value: 'lose_weight', icon: 'loseWeight', emoji: GOAL_EMOJI.lose_weight },
-  { label: 'Gain weight', value: 'gain_weight', icon: 'gainWeight', emoji: GOAL_EMOJI.gain_weight },
-  { label: 'Eat healthier', value: 'eat_healthier', icon: 'leaf', emoji: GOAL_EMOJI.eat_healthier },
-  { label: 'High protein', value: 'high_protein', icon: 'protein', emoji: GOAL_EMOJI.high_protein },
+const GOALS: { label: string; value: Goal; icon: IconName }[] = [
+  { label: 'Lose weight', value: 'lose_weight', icon: 'loseWeight' },
+  { label: 'Gain weight', value: 'gain_weight', icon: 'gainWeight' },
+  { label: 'Eat healthier', value: 'eat_healthier', icon: 'leaf' },
+  { label: 'High protein', value: 'high_protein', icon: 'protein' },
 ];
 
-const STRICTNESS: { label: string; value: Strictness; icon: IconName; emoji: string; tint: string; note: string }[] = [
-  { label: 'Relaxed', value: 'relaxed', icon: 'relaxed', emoji: STRICTNESS_EMOJI.relaxed, tint: theme.color.macro.fibre, note: 'Relaxed gives you room to breathe — only the most over-budget dishes get marked down.' },
-  { label: 'Balanced', value: 'balanced', icon: 'balanced', emoji: STRICTNESS_EMOJI.balanced, tint: theme.color.pink, note: 'Balanced is our most popular choice. It keeps you on track without being too rigid.' },
-  { label: 'Strict', value: 'strict', icon: 'strict', emoji: STRICTNESS_EMOJI.strict, tint: theme.color.berry, note: 'Strict scores dishes tightly against your targets — best when you want to stay precise.' },
+const STRICTNESS: { label: string; value: Strictness; icon: IconName; tint: string; note: string }[] = [
+  { label: 'Relaxed', value: 'relaxed', icon: 'relaxed', tint: theme.color.macro.fibre, note: 'Relaxed gives you room to breathe — only the most over-budget dishes get marked down.' },
+  { label: 'Balanced', value: 'balanced', icon: 'balanced', tint: theme.color.pink, note: 'Balanced is our most popular choice. It keeps you on track without being too rigid.' },
+  { label: 'Strict', value: 'strict', icon: 'strict', tint: theme.color.berry, note: 'Strict scores dishes tightly against your targets — best when you want to stay precise.' },
 ];
 
 export default function GoalStep() {
@@ -75,7 +74,6 @@ export default function GoalStep() {
           <View key={g.value} style={styles.goalCell}>
             <SelectCard
               icon={g.icon}
-              emoji={g.emoji}
               label={g.label}
               selected={draft.goal === g.value}
               onPress={() => update({ goal: g.value })}
@@ -91,7 +89,6 @@ export default function GoalStep() {
           <SelectCard
             key={s.value}
             icon={s.icon}
-            emoji={s.emoji}
             label={s.label}
             tint={s.tint}
             selected={draft.strictness === s.value}

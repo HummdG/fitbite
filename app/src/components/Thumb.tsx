@@ -1,6 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, ImageStyle, StyleProp, StyleSheet, ViewStyle } from 'react-native';
-import { Text } from '@/components/Text';
 
 import { foodTile } from '@/lib/foodCategory';
 import { theme } from '@/theme';
@@ -9,11 +8,11 @@ import { Icon, IconName } from './Icon';
 type Props = {
   size?: number;
   radius?: number;
-  /** Dish name → derives the food emoji + on-brand tint. */
+  /** Dish name → derives the category icon + on-brand tint. */
   name?: string;
-  /** A real dish photo (user upload / generated). Wins over the emoji tile. */
+  /** A real dish photo (user upload / generated). Wins over the icon tile. */
   imageUrl?: string | null;
-  /** Explicit line-icon override (used instead of the food emoji). */
+  /** Explicit category-icon override (used instead of the derived one). */
   icon?: IconName;
   style?: ViewStyle;
 };
@@ -21,8 +20,8 @@ type Props = {
 /**
  * A stand-in for a food photo. If `imageUrl` is provided it shows the real
  * picture; otherwise it renders a soft category-tinted gradient tile with a
- * food emoji (e.g. 🍜, 🥗, 🍕), so lists read as varied, appetising imagery
- * rather than a wall of identical placeholders.
+ * duotone category icon (e.g. bowl, salad, pizza), so lists read as varied,
+ * appetising imagery rather than a wall of identical placeholders.
  */
 export function Thumb({ size = 56, radius = theme.radius.lg, name, imageUrl, icon, style }: Props) {
   const tile = foodTile(name);
@@ -44,11 +43,7 @@ export function Thumb({ size = 56, radius = theme.radius.lg, name, imageUrl, ico
       end={{ x: 1, y: 1 }}
       style={[styles.box, { width: size, height: size, borderRadius: radius }, style]}
     >
-      {icon ? (
-        <Icon name={icon} size={Math.round(size * 0.46)} color={tile.base} />
-      ) : (
-        <Text style={{ fontSize: Math.round(size * 0.5) }}>{tile.emoji}</Text>
-      )}
+      <Icon name={icon ?? tile.icon} size={Math.round(size * 0.46)} color={tile.base} weight="duotone" />
     </LinearGradient>
   );
 }

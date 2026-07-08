@@ -4,9 +4,9 @@ import { Icon, IconName } from '@/components';
 import { theme } from '@/theme';
 
 const tabIcon =
-  (filled: IconName, outline: IconName) =>
+  (name: IconName) =>
   ({ focused, color }: { focused: boolean; color: string }) =>
-    <Icon name={focused ? filled : outline} size={24} color={color} />;
+    <Icon name={name} size={24} color={color} weight={focused ? 'fill' : 'regular'} />;
 
 export default function TabsLayout() {
   return (
@@ -25,11 +25,11 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 11, fontFamily: theme.fontFamily.semibold },
       }}
     >
-      <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: tabIcon('home', 'homeOutline') }} />
-      <Tabs.Screen name="scanner" options={{ title: 'Scan', tabBarIcon: tabIcon('scan', 'scanOutline') }} />
-      <Tabs.Screen name="history" options={{ title: 'Log', tabBarIcon: tabIcon('calendar', 'calendarOutline') }} />
-      <Tabs.Screen name="progress" options={{ title: 'Progress', tabBarIcon: tabIcon('chart', 'chartOutline') }} />
-      <Tabs.Screen name="settings" options={{ title: 'Profile', tabBarIcon: tabIcon('person', 'personOutline') }} />
+      <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: tabIcon('home') }} />
+      <Tabs.Screen name="scanner" options={{ title: 'Scan', tabBarIcon: tabIcon('scan') }} />
+      <Tabs.Screen name="history" options={{ title: 'Log', tabBarIcon: tabIcon('calendar') }} />
+      <Tabs.Screen name="progress" options={{ title: 'Progress', tabBarIcon: tabIcon('chart') }} />
+      <Tabs.Screen name="settings" options={{ title: 'Profile', tabBarIcon: tabIcon('person') }} />
     </Tabs>
   );
 }

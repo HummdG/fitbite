@@ -75,7 +75,7 @@ export default function Today() {
     <ScreenContainer>
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.hello}>Today ☀️</Text>
+          <Text style={styles.hello}>Today</Text>
           <Text style={styles.kcalLeft}>
             {left.toLocaleString()} kcal left to go
           </Text>
@@ -139,7 +139,7 @@ function QuickAction({ icon, label, tint, onPress }: { icon: IconName; label: st
       style={({ pressed }) => [styles.quick, { backgroundColor: withAlpha(tint, 0x12), opacity: pressed ? 0.9 : 1 }]}
     >
       <View style={[styles.quickIcon, { backgroundColor: withAlpha(tint, 0x1f) }]}>
-        <Icon name={icon} size={20} color={tint} />
+        <Icon name={icon} size={20} color={tint} weight="duotone" />
       </View>
       <Text style={styles.quickLabel}>{label}</Text>
     </Pressable>

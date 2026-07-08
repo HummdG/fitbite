@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '@/components/Text';
 
 import { cardShadow, theme, withAlpha } from '@/theme';
+import { Icon, IconName } from './Icon';
 
 type Kind = 'height' | 'weight';
 type Unit = 'metric' | 'imperial';
@@ -10,7 +11,7 @@ type Unit = 'metric' | 'imperial';
 type Props = {
   kind: Kind;
   label: string;
-  emoji: string;
+  icon: IconName;
   tint?: string;
   /** Canonical value the app stores: cm for height, kg for weight (as a string). */
   value: string;
@@ -53,7 +54,7 @@ function toCanonical(kind: Kind, unit: Unit, a: string, b: string): string {
  * (cm ⇄ ft/in, kg ⇄ lb) while the app always stores the metric canonical value.
  * Used on the onboarding "About you" step.
  */
-export function MeasureField({ kind, label, emoji, tint = theme.color.pink, value, onChange }: Props) {
+export function MeasureField({ kind, label, icon, tint = theme.color.pink, value, onChange }: Props) {
   const [unit, setUnit] = useState<Unit>('metric');
   const seed = toDisplay(kind, 'metric', value);
   const [a, setA] = useState(seed.a);
@@ -88,7 +89,7 @@ export function MeasureField({ kind, label, emoji, tint = theme.color.pink, valu
     <View style={styles.card}>
       <View style={styles.head}>
         <View style={[styles.iconWrap, { backgroundColor: withAlpha(tint, 0x1f) }]}>
-          <Text style={styles.emoji}>{emoji}</Text>
+          <Icon name={icon} size={20} color={tint} weight="duotone" />
         </View>
         <Text style={styles.label}>{label}</Text>
         <View style={styles.toggle}>
@@ -164,7 +165,6 @@ const styles = StyleSheet.create({
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
   iconWrap: { width: 38, height: 38, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
-  emoji: { fontSize: 20 },
   label: { flex: 1, fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '600' },
   toggle: { flexDirection: 'row', backgroundColor: theme.color.blush, borderRadius: theme.radius.pill, padding: 3, gap: 2 },
   seg: { borderRadius: theme.radius.pill, paddingHorizontal: 12, paddingVertical: 5 },

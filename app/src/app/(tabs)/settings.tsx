@@ -6,21 +6,21 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Field, Icon, OptionRow, ScreenContainer, Toggle } from '@/components';
 import { confirmSignOut, useSession } from '@/features/auth/useSession';
 import { useProfile } from '@/features/profile/useProfile';
-import { WIDGET_EMOJI } from '@/lib/emoji';
 import { MACRO_ORDER, MACROS } from '@/lib/macros';
 import { supabase } from '@/lib/supabase';
 import { theme, withAlpha } from '@/theme';
 import type { MacroKey } from '@/types/api';
+import type { IconName } from '@/components';
 
 const STRICTNESS_LABEL: Record<string, string> = { relaxed: 'Relaxed', balanced: 'Balanced', strict: 'Strict' };
 
 // Macros the user can toggle onto the Today dashboard (derived from the registry).
-const MACRO_WIDGETS = MACRO_ORDER.map((key) => ({ key, label: MACROS[key].label }));
+const MACRO_WIDGETS = MACRO_ORDER.map((key) => ({ key, label: MACROS[key].label, icon: MACROS[key].icon, color: MACROS[key].color }));
 
 // Not tracked yet — surfaced as "coming soon" rather than dead toggles.
-const SOON_WIDGETS: { key: string; label: string }[] = [
-  { key: 'water', label: 'Water' },
-  { key: 'steps', label: 'Steps' },
+const SOON_WIDGETS: { key: string; label: string; icon: IconName }[] = [
+  { key: 'water', label: 'Water', icon: 'water' },
+  { key: 'steps', label: 'Steps', icon: 'steps' },
 ];
 
 const DEFAULT_WIDGETS: MacroKey[] = ['calories', 'protein', 'fibre'];
@@ -67,7 +67,7 @@ export default function Profile() {
         </Pressable>
       </View>
       <Text style={styles.hey} numberOfLines={1}>
-        Hey {name}! 👋
+        Hey {name}!
       </Text>
       <Text style={styles.sub}>Let&apos;s keep making smart choices.</Text>
 
@@ -78,8 +78,7 @@ export default function Profile() {
           return (
             <OptionRow
               key={key}
-              icon="chevron"
-              emoji={m.emoji}
+              icon={m.icon}
               tint={m.color}
               title={m.label}
               value={profile ? `${profile[m.targetField].toLocaleString()} ${m.goalUnit}` : '—'}
@@ -100,9 +99,10 @@ export default function Profile() {
       <View style={styles.widgetGrid}>
         {MACRO_WIDGETS.map((w) => (
           <View key={w.key} style={styles.widgetCell}>
-            <Text style={styles.widgetLabel}>
-              {WIDGET_EMOJI[w.key]} {w.label}
-            </Text>
+            <View style={styles.widgetLabelRow}>
+              <Icon name={w.icon} size={18} color={w.color} weight="duotone" />
+              <Text style={styles.widgetLabel}>{w.label}</Text>
+            </View>
             <Toggle value={widgets.includes(w.key)} onValueChange={() => toggleWidget(w.key)} />
           </View>
         ))}
@@ -111,9 +111,10 @@ export default function Profile() {
       <View style={styles.soonList}>
         {SOON_WIDGETS.map((w) => (
           <View key={w.key} style={styles.soonRow}>
-            <Text style={styles.soonLabel}>
-              {WIDGET_EMOJI[w.key]} {w.label}
-            </Text>
+            <View style={styles.widgetLabelRow}>
+              <Icon name={w.icon} size={18} color={theme.color.textSecondary} weight="duotone" />
+              <Text style={styles.soonLabel}>{w.label}</Text>
+            </View>
             <View style={styles.soonPill}>
               <Icon name="lock" size={12} color={theme.color.purple} />
               <Text style={styles.soonPillText}>Coming soon</Text>
@@ -175,7 +176,7 @@ function EditGoalSheet({
           <View style={styles.sheetGrabber} />
           <View style={styles.sheetHeader}>
             <View style={styles.sheetTitleWrap}>
-              {!!macro && <Text style={styles.sheetEmoji}>{macro.emoji}</Text>}
+              {!!macro && <Icon name={macro.icon} size={20} color={macro.color} weight="duotone" />}
               <Text style={styles.sheetTitle}>Edit {macro?.label}</Text>
             </View>
             <Pressable onPress={onClose} hitSlop={8} accessibilityRole="button" accessibilityLabel="Close">
@@ -225,6 +226,7 @@ const styles = StyleSheet.create({
   rowValue: { color: theme.color.textPrimary, fontSize: theme.fontSize.body, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: theme.spacing.md, textTransform: 'capitalize' },
   widgetGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: theme.spacing.lg },
   widgetCell: { width: '47%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  widgetLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   widgetLabel: { fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '600' },
   soonList: { marginTop: theme.spacing.lg, gap: theme.spacing.sm },
   soonRow: {
@@ -252,6 +254,5 @@ const styles = StyleSheet.create({
   sheetGrabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: theme.color.border, marginBottom: theme.spacing.md },
   sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
   sheetTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sheetEmoji: { fontSize: 20 },
   sheetTitle: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
 });

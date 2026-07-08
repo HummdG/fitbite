@@ -6,8 +6,6 @@ import { Icon, IconName } from './Icon';
 
 type Props = TextInputProps & {
   icon: IconName;
-  /** Emoji shown in the chip instead of the line icon. */
-  emoji?: string;
   label: string;
   unit?: string;
   tint?: string;
@@ -15,11 +13,11 @@ type Props = TextInputProps & {
 
 /** A labelled input styled as a settings row: tinted icon, label, and a
  * right-aligned value. Used for the onboarding "About you" numeric fields. */
-export function FieldRow({ icon, emoji, label, unit, tint = theme.color.pink, style, ...props }: Props) {
+export function FieldRow({ icon, label, unit, tint = theme.color.pink, style, ...props }: Props) {
   return (
     <View style={styles.row}>
       <View style={[styles.iconWrap, { backgroundColor: withAlpha(tint, 0x1f) }]}>
-        {emoji ? <Text style={styles.emoji}>{emoji}</Text> : <Icon name={icon} size={20} color={tint} />}
+        <Icon name={icon} size={20} color={tint} weight="duotone" />
       </View>
       <Text style={styles.label}>{label}</Text>
       <TextInput
@@ -44,7 +42,6 @@ const styles = StyleSheet.create({
     ...cardShadow(),
   },
   iconWrap: { width: 38, height: 38, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
-  emoji: { fontSize: 20 },
   label: { flex: 1, fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '600' },
   input: {
     minWidth: 56,

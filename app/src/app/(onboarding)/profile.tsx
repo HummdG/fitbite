@@ -5,21 +5,20 @@ import { useRouter } from 'expo-router';
 import { Button, ChipGroup, Field, FieldRow, MeasureField, ScreenContainer, SelectCard, Stepper } from '@/components';
 import { confirmSignOut } from '@/features/auth/useSession';
 import { useOnboarding } from '@/features/onboarding/store';
-import { ACTIVITY_EMOJI, GENDER_EMOJI } from '@/lib/emoji';
 import { theme } from '@/theme';
 import type { ActivityLevel, Gender } from '@/types/api';
 
-const GENDERS: { label: string; value: Gender }[] = [
-  { label: 'Female', value: 'female' },
-  { label: 'Male', value: 'male' },
+const GENDERS: { label: string; value: Gender; icon: 'female' | 'male' }[] = [
+  { label: 'Female', value: 'female', icon: 'female' },
+  { label: 'Male', value: 'male', icon: 'male' },
 ];
 
 const ACTIVITY: { label: string; value: ActivityLevel }[] = [
-  { label: `${ACTIVITY_EMOJI.sedentary} Sedentary`, value: 'sedentary' },
-  { label: `${ACTIVITY_EMOJI.light} Light`, value: 'light' },
-  { label: `${ACTIVITY_EMOJI.moderate} Moderate`, value: 'moderate' },
-  { label: `${ACTIVITY_EMOJI.active} Active`, value: 'active' },
-  { label: `${ACTIVITY_EMOJI.very_active} Very active`, value: 'very_active' },
+  { label: 'Sedentary', value: 'sedentary' },
+  { label: 'Light', value: 'light' },
+  { label: 'Moderate', value: 'moderate' },
+  { label: 'Active', value: 'active' },
+  { label: 'Very active', value: 'very_active' },
 ];
 
 const DIET_PREFS = [
@@ -53,8 +52,7 @@ export default function ProfileStep() {
         {GENDERS.map((g) => (
           <SelectCard
             key={g.value}
-            icon="person"
-            emoji={GENDER_EMOJI[g.value]}
+            icon={g.icon}
             label={g.label}
             selected={draft.gender === g.value}
             onPress={() => update({ gender: g.value })}
@@ -63,10 +61,10 @@ export default function ProfileStep() {
       </View>
 
       <View style={styles.fields}>
-        <FieldRow icon="calendar" emoji="🎂" label="Age" tint={theme.color.pink} keyboardType="number-pad" value={draft.age} onChangeText={(v) => update({ age: v })} placeholder="30" />
-        <MeasureField kind="height" emoji="📏" label="Height" tint={theme.color.indigo} value={draft.height_cm} onChange={(v) => update({ height_cm: v })} />
-        <MeasureField kind="weight" emoji="⚖️" label="Current weight" tint={theme.color.macro.fibre} value={draft.current_weight_kg} onChange={(v) => update({ current_weight_kg: v })} />
-        <MeasureField kind="weight" emoji="🎯" label="Target weight" tint={theme.color.berry} value={draft.target_weight_kg} onChange={(v) => update({ target_weight_kg: v })} />
+        <FieldRow icon="age" label="Age" tint={theme.color.pink} keyboardType="number-pad" value={draft.age} onChangeText={(v) => update({ age: v })} placeholder="30" />
+        <MeasureField kind="height" icon="height" label="Height" tint={theme.color.indigo} value={draft.height_cm} onChange={(v) => update({ height_cm: v })} />
+        <MeasureField kind="weight" icon="weight" label="Current weight" tint={theme.color.macro.fibre} value={draft.current_weight_kg} onChange={(v) => update({ current_weight_kg: v })} />
+        <MeasureField kind="weight" icon="flag" label="Target weight" tint={theme.color.berry} value={draft.target_weight_kg} onChange={(v) => update({ target_weight_kg: v })} />
       </View>
 
       <ChipGroup

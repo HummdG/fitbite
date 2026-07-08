@@ -7,8 +7,6 @@ import { Icon, IconName } from './Icon';
 
 type Props = {
   icon: IconName;
-  /** Emoji shown in the chip instead of the line icon. */
-  emoji?: string;
   title: string;
   subtitle?: string;
   /** Right-aligned value rendered before the trailing chevron. */
@@ -23,7 +21,7 @@ type Props = {
 };
 
 /** Tappable card row with a tinted leading icon — scan options, settings rows. */
-export function OptionRow({ icon, emoji, title, subtitle, value, onPress, trailing, tint = theme.color.pink, disabled, style }: Props) {
+export function OptionRow({ icon, title, subtitle, value, onPress, trailing, tint = theme.color.pink, disabled, style }: Props) {
   const trailingNode =
     trailing !== undefined ? trailing : onPress ? <Icon name="chevron" size={20} color={theme.color.textSecondary} /> : null;
 
@@ -35,7 +33,7 @@ export function OptionRow({ icon, emoji, title, subtitle, value, onPress, traili
       style={({ pressed }) => [styles.row, { opacity: disabled ? 0.5 : pressed ? 0.9 : 1 }, style]}
     >
       <View style={[styles.iconWrap, { backgroundColor: `${tint}1A` }]}>
-        {emoji ? <Text style={styles.emoji}>{emoji}</Text> : <Icon name={icon} size={22} color={tint} />}
+        <Icon name={icon} size={22} color={tint} weight="duotone" />
       </View>
       <View style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
@@ -60,7 +58,6 @@ const styles = StyleSheet.create({
     ...softShadow(),
   },
   iconWrap: { width: 44, height: 44, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
-  emoji: { fontSize: 22 },
   textWrap: { flex: 1 },
   title: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
   subtitle: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginTop: 2 },

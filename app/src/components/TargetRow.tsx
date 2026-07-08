@@ -23,7 +23,7 @@ export function TargetRow({ icon, label, value, unit, color, progress, barColor 
     <View style={styles.card}>
       <View style={styles.top}>
         <View style={[styles.iconWrap, { backgroundColor: withAlpha(color, 0x22) }]}>
-          <Icon name={icon} size={22} color={color} />
+          <Icon name={icon} size={22} color={color} weight="duotone" />
         </View>
         <View style={styles.textWrap}>
           <Text style={styles.label}>{label}</Text>

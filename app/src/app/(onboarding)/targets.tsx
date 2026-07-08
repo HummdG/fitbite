@@ -9,22 +9,21 @@ import type { IconName } from '@/components';
 import { confirmSignOut, useSession } from '@/features/auth/useSession';
 import { useOnboarding } from '@/features/onboarding/store';
 import { useSafeBack } from '@/lib/nav';
-import { WIDGET_EMOJI } from '@/lib/emoji';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/theme';
 import type { MacroKey } from '@/types/api';
 
 // Data-backed widgets map to a MacroKey; the rest are shown to match the mockup
 // but disabled until there's a data source for them.
-type Widget = { key: string; macro?: MacroKey; label: string; icon: IconName; emoji: string; color: string };
+type Widget = { key: string; macro?: MacroKey; label: string; icon: IconName; color: string };
 const WIDGETS: Widget[] = [
-  { key: 'calories', macro: 'calories', label: 'Calories', icon: 'calories', emoji: WIDGET_EMOJI.calories, color: theme.color.macro.calories },
-  { key: 'protein', macro: 'protein', label: 'Protein', icon: 'protein', emoji: WIDGET_EMOJI.protein, color: theme.color.macro.protein },
-  { key: 'fibre', macro: 'fibre', label: 'Fibre', icon: 'fibre', emoji: WIDGET_EMOJI.fibre, color: theme.color.macro.fibre },
-  { key: 'carbs', macro: 'carbs', label: 'Carbs', icon: 'carbs', emoji: WIDGET_EMOJI.carbs, color: theme.color.macro.carbs },
-  { key: 'fat', macro: 'fat', label: 'Fat', icon: 'fat', emoji: WIDGET_EMOJI.fat, color: theme.color.macro.fat },
-  { key: 'water', label: 'Water', icon: 'water', emoji: WIDGET_EMOJI.water, color: theme.color.indigo },
-  { key: 'steps', label: 'Steps', icon: 'steps', emoji: WIDGET_EMOJI.steps, color: theme.color.macro.fibre },
+  { key: 'calories', macro: 'calories', label: 'Calories', icon: 'calories', color: theme.color.macro.calories },
+  { key: 'protein', macro: 'protein', label: 'Protein', icon: 'protein', color: theme.color.macro.protein },
+  { key: 'fibre', macro: 'fibre', label: 'Fibre', icon: 'fibre', color: theme.color.macro.fibre },
+  { key: 'carbs', macro: 'carbs', label: 'Carbs', icon: 'carbs', color: theme.color.macro.carbs },
+  { key: 'fat', macro: 'fat', label: 'Fat', icon: 'fat', color: theme.color.macro.fat },
+  { key: 'water', label: 'Water', icon: 'water', color: theme.color.indigo },
+  { key: 'steps', label: 'Steps', icon: 'steps', color: theme.color.macro.fibre },
 ];
 
 export default function TargetsStep() {
@@ -120,7 +119,6 @@ export default function TargetsStep() {
           <View key={w.key} style={styles.cell}>
             <SelectCard
               icon={w.icon}
-              emoji={w.emoji}
               label={w.label}
               tint={w.color}
               checkbox

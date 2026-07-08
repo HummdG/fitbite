@@ -32,7 +32,7 @@ export function MacroSummary({ totals, targets, widgets, style }: Props) {
         return (
           <MacroGauge
             key={key}
-            emoji={m.emoji}
+            icon={m.icon}
             label={m.label}
             value={totals[m.totalField]}
             target={targets[m.targetField]}
