@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 
 import { supabase } from '@/lib/supabase';
@@ -37,4 +38,16 @@ export const useSession = () => useContext(SessionContext);
 
 export async function signOut() {
   await supabase.auth.signOut();
+}
+
+/**
+ * Confirm, then sign out. Clearing the Supabase session flips the AuthGate to the
+ * Welcome screen (and wipes the persisted session so the next launch starts there
+ * too) — the one escape hatch out of a half-finished onboarding.
+ */
+export function confirmSignOut() {
+  Alert.alert('Log out', 'Log out and return to the welcome screen?', [
+    { text: 'Cancel', style: 'cancel' },
+    { text: 'Log out', style: 'destructive', onPress: () => void signOut() },
+  ]);
 }

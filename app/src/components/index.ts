@@ -13,6 +13,7 @@ export type { IconName } from './Icon';
 export { LineChart } from './LineChart';
 export { Logo, LogoMark } from './Logo';
 export { MacroBar } from './MacroBar';
+export { MeasureField } from './MeasureField';
 export { MacroChips } from './MacroChips';
 export { MacroGauge } from './MacroGauge';
 export { MacroRing } from './MacroRing';

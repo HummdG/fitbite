@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useRouter } from 'expo-router';
 
@@ -19,6 +19,7 @@ import { useSession } from '@/features/auth/useSession';
 import { useHistory } from '@/features/history/useHistory';
 import { useProfile } from '@/features/profile/useProfile';
 import { AddToTodayInput, useAddToToday, useRemoveFromToday, useToday } from '@/features/today/useToday';
+import { MACROS, orderMacros } from '@/lib/macros';
 import { cardShadow, theme, withAlpha } from '@/theme';
 import type { FoodLogRow, MacroKey } from '@/types/api';
 
@@ -79,16 +80,18 @@ export default function Today() {
             {left.toLocaleString()} kcal left to go
           </Text>
         </View>
-        {streak > 0 && <StreakBadge days={streak} />}
+        <StreakBadge days={streak} />
       </View>
 
       <MacroSummary totals={totals} targets={targets} widgets={widgets} style={styles.gauges} />
 
-      <Text style={styles.section}>Quick actions</Text>
-      <View style={styles.quickRow}>
-        <QuickAction icon="scan" label="Scan a menu" tint={theme.color.pink} onPress={() => router.push('/scanner')} />
-        <QuickAction icon="plus" label="Add food" tint={theme.color.indigo} onPress={() => setAdding(true)} />
-      </View>
+      <Card style={styles.quickCard}>
+        <Text style={styles.quickHeading}>Quick actions</Text>
+        <View style={styles.quickRow}>
+          <QuickAction icon="scan" label="Scan a menu" tint={theme.color.pink} onPress={() => router.push('/scanner')} />
+          <QuickAction icon="plus" label="Add food" tint={theme.color.indigo} onPress={() => setAdding(true)} />
+        </View>
+      </Card>
 
       <Text style={styles.section}>Today&apos;s log</Text>
       {isLoading ? (
@@ -117,6 +120,7 @@ export default function Today() {
 
       <AddFoodModal
         visible={adding}
+        widgets={widgets}
         onClose={() => setAdding(false)}
         onSave={async (input) => {
           await add.mutateAsync(input);
@@ -132,7 +136,7 @@ function QuickAction({ icon, label, tint, onPress }: { icon: IconName; label: st
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.quick, { opacity: pressed ? 0.9 : 1 }]}
+      style={({ pressed }) => [styles.quick, { backgroundColor: withAlpha(tint, 0x12), opacity: pressed ? 0.9 : 1 }]}
     >
       <View style={[styles.quickIcon, { backgroundColor: withAlpha(tint, 0x1f) }]}>
         <Icon name={icon} size={20} color={tint} />
@@ -144,40 +148,46 @@ function QuickAction({ icon, label, tint, onPress }: { icon: IconName; label: st
 
 function AddFoodModal({
   visible,
+  widgets,
   onClose,
   onSave,
 }: {
   visible: boolean;
+  widgets: MacroKey[];
   onClose: () => void;
   onSave: (input: AddToTodayInput) => Promise<void>;
 }) {
   const [name, setName] = useState('');
   const [calories, setCalories] = useState('');
-  const [protein, setProtein] = useState('');
-  const [carbs, setCarbs] = useState('');
-  const [fat, setFat] = useState('');
+  const [macros, setMacros] = useState<Partial<Record<MacroKey, string>>>({});
   const [busy, setBusy] = useState(false);
+
+  // One box per selected dial, excluding Calories (which has its own field).
+  const macroKeys = orderMacros(widgets).filter((k) => k !== 'calories');
+  const setMacro = (key: MacroKey, v: string) => setMacros((m) => ({ ...m, [key]: v }));
 
   const reset = () => {
     setName('');
     setCalories('');
-    setProtein('');
-    setCarbs('');
-    setFat('');
+    setMacros({});
   };
 
   const save = async () => {
     if (!name.trim() || !calories) return;
     setBusy(true);
     try {
-      await onSave({
+      const input: AddToTodayInput = {
         name: name.trim(),
         calories: Number(calories) || 0,
-        protein_g: Number(protein) || 0,
-        carbs_g: Number(carbs) || 0,
-        fat_g: Number(fat) || 0,
+        protein_g: 0,
+        carbs_g: 0,
+        fat_g: 0,
         fibre_g: 0,
-      });
+      };
+      for (const key of macroKeys) {
+        input[MACROS[key].totalField] = Number(macros[key]) || 0;
+      }
+      await onSave(input);
       reset();
     } finally {
       setBusy(false);
@@ -186,8 +196,10 @@ function AddFoodModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel="Dismiss" />
         <Card style={styles.sheet}>
+          <View style={styles.sheetGrabber} />
           <View style={styles.sheetHeader}>
             <Text style={styles.sheetTitle}>Add food</Text>
             <Pressable onPress={onClose} hitSlop={8} accessibilityRole="button" accessibilityLabel="Close">
@@ -196,20 +208,24 @@ function AddFoodModal({
           </View>
           <Field label="Name" value={name} onChangeText={setName} placeholder="e.g. Chicken wrap" />
           <Field label="Calories (kcal)" keyboardType="numeric" value={calories} onChangeText={setCalories} placeholder="e.g. 480" />
-          <View style={styles.macroFields}>
-            <View style={styles.macroInput}>
-              <Field label="Protein (g)" keyboardType="numeric" value={protein} onChangeText={setProtein} placeholder="0" />
+          {macroKeys.length > 0 && (
+            <View style={styles.macroFields}>
+              {macroKeys.map((key) => (
+                <View key={key} style={styles.macroInput}>
+                  <Field
+                    label={`${MACROS[key].label} (g)`}
+                    keyboardType="numeric"
+                    value={macros[key] ?? ''}
+                    onChangeText={(v) => setMacro(key, v)}
+                    placeholder="0"
+                  />
+                </View>
+              ))}
             </View>
-            <View style={styles.macroInput}>
-              <Field label="Carbs (g)" keyboardType="numeric" value={carbs} onChangeText={setCarbs} placeholder="0" />
-            </View>
-            <View style={styles.macroInput}>
-              <Field label="Fat (g)" keyboardType="numeric" value={fat} onChangeText={setFat} placeholder="0" />
-            </View>
-          </View>
+          )}
           <Button title="Add to Today" onPress={save} loading={busy} disabled={!name.trim() || !calories} />
         </Card>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -220,13 +236,14 @@ const styles = StyleSheet.create({
   kcalLeft: { fontSize: theme.fontSize.body, color: theme.color.pink, fontWeight: '700', marginTop: 2 },
   gauges: { marginBottom: theme.spacing.xl },
   section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginBottom: theme.spacing.md },
-  quickRow: { flexDirection: 'row', gap: theme.spacing.md, marginBottom: theme.spacing.xl },
+  quickCard: { marginBottom: theme.spacing.xl, gap: theme.spacing.md },
+  quickHeading: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
+  quickRow: { flexDirection: 'row', gap: theme.spacing.md },
   quick: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
-    backgroundColor: theme.color.blush,
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
   },
@@ -248,8 +265,9 @@ const styles = StyleSheet.create({
   logKcal: { fontWeight: '800', color: theme.color.pink, fontSize: theme.fontSize.body },
   backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(35,17,47,0.45)' },
   sheet: { borderTopLeftRadius: theme.radius.xl, borderTopRightRadius: theme.radius.xl, gap: 2 },
+  sheetGrabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: theme.color.border, marginBottom: theme.spacing.md },
   sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
   sheetTitle: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
-  macroFields: { flexDirection: 'row', gap: theme.spacing.sm },
-  macroInput: { flex: 1 },
+  macroFields: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+  macroInput: { flexGrow: 1, flexBasis: '30%', minWidth: 92 },
 });

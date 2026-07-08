@@ -42,6 +42,7 @@ export const ICONS = {
   bowl: 'restaurant',
   sunny: 'sunny',
   sparkles: 'sparkles',
+  flash: 'flash-outline',
   nutrition: 'nutrition-outline',
   muscle: 'barbell-outline',
   leaf: 'leaf-outline',
@@ -69,6 +70,8 @@ export const ICONS = {
   add: 'add-circle-outline',
   swap: 'swap-horizontal-outline',
   info: 'information-circle-outline',
+  lock: 'lock-closed',
+  lockOutline: 'lock-closed-outline',
 } satisfies Record<string, IoniconName>;
 
 export type IconName = keyof typeof ICONS;

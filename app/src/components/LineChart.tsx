@@ -16,6 +16,9 @@ type Props = {
   goalLabel?: string;
   /** Render left-hand y-axis value labels. */
   showAxis?: boolean;
+  /** Fill the area under the line with a soft gradient. Off by default — the
+   * Progress trend is intentionally just dots + a line. */
+  area?: boolean;
 };
 
 type Pt = { x: number; y: number };
@@ -38,8 +41,8 @@ function smooth(pts: Pt[]): string {
   return d;
 }
 
-/** Soft SVG area chart: gradient fill + smooth line + markers, goal line + y-axis. */
-export function LineChart({ data, labels, height = 180, color = theme.color.pink, goal, goalLabel, showAxis }: Props) {
+/** Soft SVG trend chart: smooth line + markers, goal line + y-axis, optional fill. */
+export function LineChart({ data, labels, height = 180, color = theme.color.pink, goal, goalLabel, showAxis, area = false }: Props) {
   const [width, setWidth] = useState(0);
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
 
@@ -56,7 +59,7 @@ export function LineChart({ data, labels, height = 180, color = theme.color.pink
 
   const line = smooth(pts);
   const baseline = padY + innerH;
-  const area = n > 0 ? `${line} L ${x(n - 1)} ${baseline} L ${x(0)} ${baseline} Z` : '';
+  const areaPath = n > 0 ? `${line} L ${x(n - 1)} ${baseline} L ${x(0)} ${baseline} Z` : '';
   const grid = [0, 0.33, 0.66, 1]; // fractions of max, top→bottom in value space
 
   return (
@@ -64,12 +67,14 @@ export function LineChart({ data, labels, height = 180, color = theme.color.pink
       <View onLayout={onLayout} style={{ height }}>
         {width > 0 && n > 0 && (
           <Svg width={width} height={height}>
-            <Defs>
-              <LinearGradient id="fbArea" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={color} stopOpacity={0.26} />
-                <Stop offset="1" stopColor={color} stopOpacity={0.02} />
-              </LinearGradient>
-            </Defs>
+            {area && (
+              <Defs>
+                <LinearGradient id="fbArea" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={color} stopOpacity={0.26} />
+                  <Stop offset="1" stopColor={color} stopOpacity={0.02} />
+                </LinearGradient>
+              </Defs>
+            )}
             {grid.map((g) => {
               const v = max * g;
               const yy = y(v);
@@ -94,7 +99,7 @@ export function LineChart({ data, labels, height = 180, color = theme.color.pink
                 )}
               </>
             )}
-            <Path d={area} fill="url(#fbArea)" />
+            {area && <Path d={areaPath} fill="url(#fbArea)" />}
             <Path d={line} fill="none" stroke={color} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
             {pts.map((p, i) => (
               <Circle key={i} cx={p.x} cy={p.y} r={i === n - 1 ? 5 : 3.5} fill={color} stroke={theme.color.card} strokeWidth={2} />

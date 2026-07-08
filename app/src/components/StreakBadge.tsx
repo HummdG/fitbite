@@ -9,8 +9,11 @@ import { Icon } from './Icon';
 export function StreakBadge({ days, style }: { days: number; style?: ViewStyle }) {
   return (
     <View style={[styles.note, style]}>
-      <Icon name="flameFilled" size={16} color="#F2741B" />
-      <Text style={styles.text}>{days}-day{'\n'}streak</Text>
+      <Icon name="flameFilled" size={16} color={days > 0 ? '#F2741B' : '#C7A878'} />
+      <Text style={styles.text}>
+        {days > 0 ? `${days}-day` : 'Start a'}
+        {'\n'}streak
+      </Text>
     </View>
   );
 }

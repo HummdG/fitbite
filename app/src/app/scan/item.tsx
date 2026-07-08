@@ -8,6 +8,7 @@ import type { TagTone } from '@/components';
 import { useSession } from '@/features/auth/useSession';
 import { lastScan } from '@/features/scan/lastScan';
 import { dishToLogInput, useAddToToday } from '@/features/today/useToday';
+import { useSafeBack } from '@/lib/nav';
 import { theme, verdictLabel } from '@/theme';
 import type { Verdict } from '@/types/api';
 
@@ -21,6 +22,7 @@ const TONE: Record<Verdict, TagTone> = {
 
 export default function ItemDetails() {
   const router = useRouter();
+  const goBack = useSafeBack('/scan/result');
   const { name } = useLocalSearchParams<{ name: string }>();
   const { session } = useSession();
   const add = useAddToToday(session?.user?.id);
@@ -39,6 +41,11 @@ export default function ItemDetails() {
         headerStyle: { backgroundColor: theme.color.background },
         headerTintColor: theme.color.textPrimary,
         headerShadowVisible: false,
+        headerLeft: () => (
+          <Pressable onPress={goBack} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back">
+            <Icon name="chevronBack" size={24} color={theme.color.textPrimary} />
+          </Pressable>
+        ),
         headerRight: () => (
           <Pressable onPress={() => setFav((f) => !f)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Favourite">
             <Icon name={fav ? 'heart' : 'heartOutline'} size={24} color={theme.color.pink} />
@@ -53,7 +60,7 @@ export default function ItemDetails() {
       <ScreenContainer>
         {header}
         <Text style={styles.muted}>That dish isn&apos;t available anymore.</Text>
-        <Button title="Back to results" onPress={() => router.back()} />
+        <Button title="Back to results" onPress={goBack} />
       </ScreenContainer>
     );
   }

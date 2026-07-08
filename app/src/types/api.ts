@@ -133,4 +133,6 @@ export interface FoodLogRow {
   fat_g: number;
   source_scan_id: string | null;
   modifications: string[];
+  /** Optional dish photo (user upload / generated). Shown on the log when set. */
+  image_url?: string | null;
 }

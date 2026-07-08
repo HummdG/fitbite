@@ -61,20 +61,22 @@ export default function History() {
 
       {day && day.rows.length > 0 ? (
         <View style={{ gap: theme.spacing.sm }}>
-          {day.rows.map((r) => (
-            <View key={r.id} style={styles.row}>
-              <Thumb size={44} name={r.name} />
-              <View style={styles.mid}>
-                <Text style={styles.name} numberOfLines={1}>
-                  {r.name}
-                </Text>
-                <Text style={styles.macros}>
-                  {r.protein_g}g P · {r.carbs_g}g C · {r.fibre_g}g Fb
-                </Text>
+          {[...day.rows]
+            .sort((a, b) => a.logged_at.localeCompare(b.logged_at))
+            .map((r) => (
+              <View key={r.id} style={styles.row}>
+                <Thumb size={52} name={r.name} imageUrl={r.image_url} />
+                <View style={styles.mid}>
+                  <Text style={styles.name} numberOfLines={1}>
+                    {r.name}
+                  </Text>
+                  <Text style={styles.macros}>
+                    {prettyTime(r.logged_at)} · {r.protein_g}g P · {r.carbs_g}g C · {r.fibre_g}g Fb
+                  </Text>
+                </View>
+                <Text style={styles.kcal}>{r.calories.toLocaleString()} kcal</Text>
               </View>
-              <Text style={styles.kcal}>{r.calories.toLocaleString()} kcal</Text>
-            </View>
-          ))}
+            ))}
         </View>
       ) : (
         <Text style={styles.muted}>Nothing logged on this day.</Text>
@@ -87,6 +89,15 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 function prettyDate(key: string): string {
   const [y, m, d] = key.split('-').map(Number);
   return `${d} ${MONTHS[m - 1]} ${y}`;
+}
+
+function prettyTime(iso: string): string {
+  const dt = new Date(iso);
+  let h = dt.getHours();
+  const m = String(dt.getMinutes()).padStart(2, '0');
+  const ap = h < 12 ? 'AM' : 'PM';
+  h = h % 12 || 12;
+  return `${h}:${m} ${ap}`;
 }
 
 const styles = StyleSheet.create({

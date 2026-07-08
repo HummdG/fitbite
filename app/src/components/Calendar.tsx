@@ -36,6 +36,11 @@ export function Calendar({ month, selected, marked, overBudget, onSelect, onPrev
     ...Array.from({ length: firstWeekday }, () => null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
+  // Pad to whole weeks and chunk into rows of 7. Rendering fixed 7-cell rows
+  // with flex:1 avoids the `${100/7}%` rounding that wraps the 7th cell.
+  while (cells.length % 7 !== 0) cells.push(null);
+  const weeks: (number | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   return (
     <View style={styles.wrap}>
@@ -59,31 +64,33 @@ export function Calendar({ month, selected, marked, overBudget, onSelect, onPrev
         ))}
       </View>
 
-      <View style={styles.grid}>
-        {cells.map((day, i) => {
-          if (day === null) return <View key={i} style={styles.cell} />;
-          const k = key(year, m, day);
-          const isSel = k === selected;
-          const isToday = k === today;
-          const over = overBudget?.has(k);
-          const logged = marked.has(k);
-          const dotColor = over ? theme.color.indigo : logged ? theme.color.candyPink : 'transparent';
-          return (
-            <Pressable key={i} style={styles.cell} onPress={() => onSelect(k)} accessibilityRole="button">
-              <View
-                style={[
-                  styles.dayCircle,
-                  isSel && styles.dayCircleSel,
-                  !isSel && isToday && styles.dayCircleToday,
-                ]}
-              >
-                <Text style={[styles.dayText, (isSel || (!isSel && isToday)) && styles.dayTextOn]}>{day}</Text>
-              </View>
-              <View style={[styles.dot, { backgroundColor: isSel ? 'transparent' : dotColor }]} />
-            </Pressable>
-          );
-        })}
-      </View>
+      {weeks.map((week, wi) => (
+        <View key={wi} style={styles.weekCells}>
+          {week.map((day, di) => {
+            if (day === null) return <View key={di} style={styles.cell} />;
+            const k = key(year, m, day);
+            const isSel = k === selected;
+            const isToday = k === today;
+            const over = overBudget?.has(k);
+            const logged = marked.has(k);
+            const dotColor = over ? theme.color.indigo : logged ? theme.color.candyPink : 'transparent';
+            return (
+              <Pressable key={di} style={styles.cell} onPress={() => onSelect(k)} accessibilityRole="button">
+                <View
+                  style={[
+                    styles.dayCircle,
+                    isSel && styles.dayCircleSel,
+                    !isSel && isToday && styles.dayCircleToday,
+                  ]}
+                >
+                  <Text style={[styles.dayText, (isSel || (!isSel && isToday)) && styles.dayTextOn]}>{day}</Text>
+                </View>
+                <View style={[styles.dot, { backgroundColor: isSel ? 'transparent' : dotColor }]} />
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
 
       <View style={styles.legend}>
         <LegendDot color={theme.color.candyPink} label="Logged" />
@@ -108,9 +115,9 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md },
   title: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
   weekRow: { flexDirection: 'row', marginBottom: 4 },
-  weekday: { width: `${100 / 7}%`, textAlign: 'center', fontSize: theme.fontSize.caption, color: theme.color.textSecondary, fontWeight: '600' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: `${100 / 7}%`, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  weekday: { flex: 1, textAlign: 'center', fontSize: theme.fontSize.caption, color: theme.color.textSecondary, fontWeight: '600' },
+  weekCells: { flexDirection: 'row' },
+  cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   dayCircle: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   dayCircleSel: { backgroundColor: theme.color.pink },
   dayCircleToday: { backgroundColor: theme.color.textPrimary },

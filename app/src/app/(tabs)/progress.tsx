@@ -7,7 +7,7 @@ import { BarChart, Button, Card, LineChart, ScreenContainer, SegmentedControl } 
 import { useSession } from '@/features/auth/useSession';
 import { denseSeries, useHistory } from '@/features/history/useHistory';
 import { useProfile } from '@/features/profile/useProfile';
-import { theme } from '@/theme';
+import { theme, withAlpha } from '@/theme';
 import type { DayBucket } from '@/features/history/useHistory';
 
 type Range = '7' | '30' | '90';
@@ -129,8 +129,9 @@ export default function Progress() {
 }
 
 function Stat({ label, value, goal, unit, color }: { label: string; value: number; goal: number; unit: string; color: string }) {
+  const pct = goal > 0 ? Math.max(0, Math.min(1, value / goal)) : 0;
   return (
-    <View style={styles.stat}>
+    <View style={[styles.stat, { backgroundColor: withAlpha(color, 0x12) }]}>
       <Text style={styles.statLabel}>{label}</Text>
       <Text style={[styles.statValue, { color }]}>{value.toLocaleString()}</Text>
       {goal > 0 && (
@@ -138,6 +139,9 @@ function Stat({ label, value, goal, unit, color }: { label: string; value: numbe
           Goal {goal.toLocaleString()} {unit}
         </Text>
       )}
+      <View style={[styles.statTrack, { backgroundColor: withAlpha(color, 0x24) }]}>
+        <View style={[styles.statFill, { width: `${pct * 100}%`, backgroundColor: color }]} />
+      </View>
     </View>
   );
 }
@@ -146,10 +150,12 @@ const styles = StyleSheet.create({
   title: { fontSize: theme.fontSize.headline, fontWeight: '800', color: theme.color.textPrimary, marginTop: theme.spacing.md },
   sub: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, marginBottom: theme.spacing.lg },
   statRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: theme.spacing.xl, gap: theme.spacing.sm },
-  stat: { flex: 1 },
+  stat: { flex: 1, borderRadius: theme.radius.lg, padding: theme.spacing.md, gap: 2 },
   statLabel: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, fontWeight: '600' },
   statValue: { fontSize: theme.fontSize.title, fontWeight: '800', marginTop: 2 },
   statGoal: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginTop: 1 },
+  statTrack: { height: 5, borderRadius: theme.radius.pill, overflow: 'hidden', marginTop: 8 },
+  statFill: { height: '100%', borderRadius: theme.radius.pill },
   tabs: { marginTop: theme.spacing.xl },
   chartCard: { marginTop: theme.spacing.md },
   cardLabel: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },

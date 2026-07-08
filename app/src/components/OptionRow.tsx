@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Text } from '@/components/Text';
 
 import { softShadow, theme } from '@/theme';
@@ -7,17 +7,23 @@ import { Icon, IconName } from './Icon';
 
 type Props = {
   icon: IconName;
+  /** Emoji shown in the chip instead of the line icon. */
+  emoji?: string;
   title: string;
   subtitle?: string;
+  /** Right-aligned value rendered before the trailing chevron. */
+  value?: string;
   onPress?: () => void;
   /** Custom trailing element; defaults to a chevron when `onPress` is set. */
   trailing?: ReactNode;
   tint?: string;
   disabled?: boolean;
+  /** Extra style for the card (e.g. `flex: 1` to fill a column). */
+  style?: StyleProp<ViewStyle>;
 };
 
 /** Tappable card row with a tinted leading icon — scan options, settings rows. */
-export function OptionRow({ icon, title, subtitle, onPress, trailing, tint = theme.color.pink, disabled }: Props) {
+export function OptionRow({ icon, emoji, title, subtitle, value, onPress, trailing, tint = theme.color.pink, disabled, style }: Props) {
   const trailingNode =
     trailing !== undefined ? trailing : onPress ? <Icon name="chevron" size={20} color={theme.color.textSecondary} /> : null;
 
@@ -26,15 +32,16 @@ export function OptionRow({ icon, title, subtitle, onPress, trailing, tint = the
       accessibilityRole={onPress ? 'button' : undefined}
       onPress={onPress}
       disabled={disabled || !onPress}
-      style={({ pressed }) => [styles.row, { opacity: disabled ? 0.5 : pressed ? 0.9 : 1 }]}
+      style={({ pressed }) => [styles.row, { opacity: disabled ? 0.5 : pressed ? 0.9 : 1 }, style]}
     >
       <View style={[styles.iconWrap, { backgroundColor: `${tint}1A` }]}>
-        <Icon name={icon} size={22} color={tint} />
+        {emoji ? <Text style={styles.emoji}>{emoji}</Text> : <Icon name={icon} size={22} color={tint} />}
       </View>
       <View style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
         {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
+      {!!value && <Text style={styles.value}>{value}</Text>}
       {trailingNode}
     </Pressable>
   );
@@ -53,7 +60,9 @@ const styles = StyleSheet.create({
     ...softShadow(),
   },
   iconWrap: { width: 44, height: 44, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
+  emoji: { fontSize: 22 },
   textWrap: { flex: 1 },
   title: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary },
   subtitle: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginTop: 2 },
+  value: { fontSize: theme.fontSize.body, fontWeight: '700', color: theme.color.textPrimary, marginRight: 2 },
 });

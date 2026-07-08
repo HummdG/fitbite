@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { Stack, useRouter } from 'expo-router';
 
-import { Button, DishCard, ScreenContainer, SegmentedControl } from '@/components';
+import { Button, DishCard, Icon, ScreenContainer, SegmentedControl } from '@/components';
 import { lastScan } from '@/features/scan/lastScan';
+import { useSafeBack } from '@/lib/nav';
 import { theme } from '@/theme';
 import type { ScoredDish } from '@/types/api';
 
@@ -17,6 +18,7 @@ const FILTERS: { label: string; value: Filter }[] = [
 
 export default function Result() {
   const router = useRouter();
+  const goBack = useSafeBack('/scanner');
   const [result] = useState(() => lastScan.get());
   const [filter, setFilter] = useState<Filter>('best');
 
@@ -29,6 +31,11 @@ export default function Result() {
         headerTintColor: theme.color.pink,
         headerTitleStyle: { fontFamily: theme.fontFamily.semibold, color: theme.color.textPrimary },
         headerShadowVisible: false,
+        headerLeft: () => (
+          <Pressable onPress={goBack} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back">
+            <Icon name="chevronBack" size={24} color={theme.color.pink} />
+          </Pressable>
+        ),
       }}
     />
   );

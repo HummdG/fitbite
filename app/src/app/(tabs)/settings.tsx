@@ -1,39 +1,26 @@
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Card, Icon, IconName, ScreenContainer, Toggle } from '@/components';
-import { signOut, useSession } from '@/features/auth/useSession';
+import { Button, Card, Field, Icon, OptionRow, ScreenContainer, Toggle } from '@/components';
+import { confirmSignOut, useSession } from '@/features/auth/useSession';
 import { useProfile } from '@/features/profile/useProfile';
+import { WIDGET_EMOJI } from '@/lib/emoji';
+import { MACRO_ORDER, MACROS } from '@/lib/macros';
 import { supabase } from '@/lib/supabase';
 import { theme, withAlpha } from '@/theme';
-import type { Goal, MacroKey } from '@/types/api';
-
-const GOAL_LABEL: Record<Goal, string> = {
-  lose_weight: 'Lose weight',
-  gain_weight: 'Gain weight',
-  eat_healthier: 'Eat healthier',
-  high_protein: 'High protein',
-};
+import type { MacroKey } from '@/types/api';
 
 const STRICTNESS_LABEL: Record<string, string> = { relaxed: 'Relaxed', balanced: 'Balanced', strict: 'Strict' };
 
-const GOAL_ROWS: { key: 'calorie_target' | 'protein_target_g' | 'fibre_target_g'; label: string; icon: IconName; unit: string; color: string }[] = [
-  { key: 'calorie_target', label: 'Calories', icon: 'calories', unit: 'kcal/day', color: theme.color.macro.calories },
-  { key: 'protein_target_g', label: 'Protein', icon: 'protein', unit: 'g/day', color: theme.color.macro.protein },
-  { key: 'fibre_target_g', label: 'Fibre', icon: 'fibre', unit: 'g/day', color: theme.color.macro.fibre },
-];
+// Macros the user can toggle onto the Today dashboard (derived from the registry).
+const MACRO_WIDGETS = MACRO_ORDER.map((key) => ({ key, label: MACROS[key].label }));
 
-type Widget = { key: string; macro?: MacroKey; label: string };
-const WIDGETS: Widget[] = [
-  { key: 'calories', macro: 'calories', label: 'Calories' },
-  { key: 'protein', macro: 'protein', label: 'Protein' },
-  { key: 'fibre', macro: 'fibre', label: 'Fibre' },
-  { key: 'carbs', macro: 'carbs', label: 'Carbs' },
-  { key: 'fat', macro: 'fat', label: 'Fat' },
+// Not tracked yet — surfaced as "coming soon" rather than dead toggles.
+const SOON_WIDGETS: { key: string; label: string }[] = [
   { key: 'water', label: 'Water' },
   { key: 'steps', label: 'Steps' },
-  { key: 'weight', label: 'Weight' },
 ];
 
 const DEFAULT_WIDGETS: MacroKey[] = ['calories', 'protein', 'fibre'];
@@ -47,6 +34,9 @@ export default function Profile() {
   const email = session?.user?.email ?? '';
   const name = email ? email.split('@')[0].replace(/[._]/g, ' ') : 'there';
   const widgets = profile?.dashboard_widgets?.length ? profile.dashboard_widgets : DEFAULT_WIDGETS;
+  // Editable goals mirror the enabled dials, with Calories always present.
+  const goalKeys = MACRO_ORDER.filter((k) => k === 'calories' || widgets.includes(k));
+  const [editing, setEditing] = useState<MacroKey | null>(null);
 
   const toggleWidget = async (key: MacroKey) => {
     if (!userId) return;
@@ -59,11 +49,14 @@ export default function Profile() {
     qc.invalidateQueries({ queryKey: ['profile', userId] });
   };
 
-  const confirmSignOut = () =>
-    Alert.alert('Sign out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
-    ]);
+  const saveGoal = async (key: MacroKey, value: number) => {
+    if (!userId) return;
+    await supabase
+      .from('profiles')
+      .update({ [MACROS[key].targetField]: value })
+      .eq('id', userId);
+    qc.invalidateQueries({ queryKey: ['profile', userId] });
+  };
 
   return (
     <ScreenContainer>
@@ -79,19 +72,22 @@ export default function Profile() {
       <Text style={styles.sub}>Let&apos;s keep making smart choices.</Text>
 
       <Text style={styles.section}>Your goals</Text>
-      <Card style={styles.cardGap}>
-        {GOAL_ROWS.map((g, i) => (
-          <View key={g.key} style={[styles.goalRow, i < GOAL_ROWS.length - 1 && styles.divider]}>
-            <View style={[styles.goalIcon, { backgroundColor: withAlpha(g.color, 0x1f) }]}>
-              <Icon name={g.icon} size={18} color={g.color} />
-            </View>
-            <Text style={styles.goalLabel}>{g.label}</Text>
-            <Text style={styles.goalValue}>
-              {profile ? `${profile[g.key].toLocaleString()} ${g.unit}` : '—'}
-            </Text>
-          </View>
-        ))}
-      </Card>
+      <View style={styles.goalList}>
+        {goalKeys.map((key) => {
+          const m = MACROS[key];
+          return (
+            <OptionRow
+              key={key}
+              icon="chevron"
+              emoji={m.emoji}
+              tint={m.color}
+              title={m.label}
+              value={profile ? `${profile[m.targetField].toLocaleString()} ${m.goalUnit}` : '—'}
+              onPress={profile ? () => setEditing(key) : undefined}
+            />
+          );
+        })}
+      </View>
 
       <Text style={styles.section}>Preferences</Text>
       <Card style={styles.cardGap}>
@@ -102,17 +98,102 @@ export default function Profile() {
       <Text style={styles.section}>Dashboard widgets</Text>
       <Text style={styles.sectionSub}>Choose what appears on your Today dashboard.</Text>
       <View style={styles.widgetGrid}>
-        {WIDGETS.map((w) => {
-          const on = !!w.macro && widgets.includes(w.macro);
-          return (
-            <View key={w.key} style={styles.widgetCell}>
-              <Text style={[styles.widgetLabel, !w.macro && styles.widgetLabelOff]}>{w.label}</Text>
-              <Toggle value={on} disabled={!w.macro} onValueChange={w.macro ? () => toggleWidget(w.macro!) : undefined} />
-            </View>
-          );
-        })}
+        {MACRO_WIDGETS.map((w) => (
+          <View key={w.key} style={styles.widgetCell}>
+            <Text style={styles.widgetLabel}>
+              {WIDGET_EMOJI[w.key]} {w.label}
+            </Text>
+            <Toggle value={widgets.includes(w.key)} onValueChange={() => toggleWidget(w.key)} />
+          </View>
+        ))}
       </View>
+
+      <View style={styles.soonList}>
+        {SOON_WIDGETS.map((w) => (
+          <View key={w.key} style={styles.soonRow}>
+            <Text style={styles.soonLabel}>
+              {WIDGET_EMOJI[w.key]} {w.label}
+            </Text>
+            <View style={styles.soonPill}>
+              <Icon name="lock" size={12} color={theme.color.purple} />
+              <Text style={styles.soonPillText}>Coming soon</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <EditGoalSheet
+        macroKey={editing}
+        current={editing && profile ? profile[MACROS[editing].targetField] : 0}
+        onClose={() => setEditing(null)}
+        onSave={async (value) => {
+          if (editing) await saveGoal(editing, value);
+        }}
+      />
     </ScreenContainer>
+  );
+}
+
+/** Bottom-sheet editor for a single goal target. */
+function EditGoalSheet({
+  macroKey,
+  current,
+  onClose,
+  onSave,
+}: {
+  macroKey: MacroKey | null;
+  current: number;
+  onClose: () => void;
+  onSave: (value: number) => Promise<void>;
+}) {
+  const macro = macroKey ? MACROS[macroKey] : null;
+  const [value, setValue] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  // Seed the input with the current target each time the sheet opens.
+  useEffect(() => {
+    if (macroKey) setValue(String(current));
+  }, [macroKey, current]);
+
+  const save = async () => {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0) return;
+    setBusy(true);
+    try {
+      await onSave(Math.round(n));
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Modal visible={!!macro} animationType="slide" transparent onRequestClose={onClose}>
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel="Dismiss" />
+        <Card style={styles.sheet}>
+          <View style={styles.sheetGrabber} />
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetTitleWrap}>
+              {!!macro && <Text style={styles.sheetEmoji}>{macro.emoji}</Text>}
+              <Text style={styles.sheetTitle}>Edit {macro?.label}</Text>
+            </View>
+            <Pressable onPress={onClose} hitSlop={8} accessibilityRole="button" accessibilityLabel="Close">
+              <Icon name="close" size={22} color={theme.color.textSecondary} />
+            </Pressable>
+          </View>
+          <Field
+            label={macro ? `New value (${macro.goalUnit})` : ''}
+            keyboardType="numeric"
+            value={value}
+            onChangeText={setValue}
+            placeholder="0"
+            autoFocus
+          />
+          <Button title="Save" onPress={save} loading={busy} disabled={!value.trim()} />
+        </Card>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
@@ -137,10 +218,7 @@ const styles = StyleSheet.create({
   section: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary, marginBottom: theme.spacing.sm },
   sectionSub: { fontSize: theme.fontSize.caption, color: theme.color.textSecondary, marginBottom: theme.spacing.md, marginTop: -2 },
   cardGap: { marginBottom: theme.spacing.xl, paddingVertical: 4 },
-  goalRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md, paddingVertical: 12 },
-  goalIcon: { width: 36, height: 36, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' },
-  goalLabel: { flex: 1, fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '600' },
-  goalValue: { fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '700' },
+  goalList: { gap: theme.spacing.sm, marginBottom: theme.spacing.xl },
   divider: { borderBottomWidth: 1, borderBottomColor: theme.color.border },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
   rowLabel: { color: theme.color.textSecondary, fontSize: theme.fontSize.body },
@@ -148,5 +226,32 @@ const styles = StyleSheet.create({
   widgetGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: theme.spacing.lg },
   widgetCell: { width: '47%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   widgetLabel: { fontSize: theme.fontSize.body, color: theme.color.textPrimary, fontWeight: '600' },
-  widgetLabelOff: { color: theme.color.textSecondary },
+  soonList: { marginTop: theme.spacing.lg, gap: theme.spacing.sm },
+  soonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: withAlpha(theme.color.purple, 0x0a),
+    borderRadius: theme.radius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 10,
+  },
+  soonLabel: { fontSize: theme.fontSize.body, color: theme.color.textSecondary, fontWeight: '600' },
+  soonPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: withAlpha(theme.color.purple, 0x14),
+    borderRadius: theme.radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  soonPillText: { fontSize: theme.fontSize.caption, color: theme.color.purple, fontWeight: '700' },
+  backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(35,17,47,0.45)' },
+  sheet: { borderTopLeftRadius: theme.radius.xl, borderTopRightRadius: theme.radius.xl, gap: 2 },
+  sheetGrabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: theme.color.border, marginBottom: theme.spacing.md },
+  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
+  sheetTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sheetEmoji: { fontSize: 20 },
+  sheetTitle: { fontSize: theme.fontSize.subtitle, fontWeight: '700', color: theme.color.textPrimary },
 });

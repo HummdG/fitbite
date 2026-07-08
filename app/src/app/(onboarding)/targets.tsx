@@ -6,24 +6,25 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Button, ScreenContainer, SelectCard, Stepper, TargetRow } from '@/components';
 import type { IconName } from '@/components';
-import { useSession } from '@/features/auth/useSession';
+import { confirmSignOut, useSession } from '@/features/auth/useSession';
 import { useOnboarding } from '@/features/onboarding/store';
+import { useSafeBack } from '@/lib/nav';
+import { WIDGET_EMOJI } from '@/lib/emoji';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/theme';
 import type { MacroKey } from '@/types/api';
 
 // Data-backed widgets map to a MacroKey; the rest are shown to match the mockup
 // but disabled until there's a data source for them.
-type Widget = { key: string; macro?: MacroKey; label: string; icon: IconName; color: string };
+type Widget = { key: string; macro?: MacroKey; label: string; icon: IconName; emoji: string; color: string };
 const WIDGETS: Widget[] = [
-  { key: 'calories', macro: 'calories', label: 'Calories', icon: 'calories', color: theme.color.macro.calories },
-  { key: 'protein', macro: 'protein', label: 'Protein', icon: 'protein', color: theme.color.macro.protein },
-  { key: 'fibre', macro: 'fibre', label: 'Fibre', icon: 'fibre', color: theme.color.macro.fibre },
-  { key: 'carbs', macro: 'carbs', label: 'Carbs', icon: 'carbs', color: theme.color.macro.carbs },
-  { key: 'fat', macro: 'fat', label: 'Fat', icon: 'fat', color: theme.color.macro.fat },
-  { key: 'water', label: 'Water', icon: 'water', color: theme.color.indigo },
-  { key: 'weight', label: 'Weight', icon: 'weight', color: theme.color.berry },
-  { key: 'steps', label: 'Steps', icon: 'steps', color: theme.color.macro.fibre },
+  { key: 'calories', macro: 'calories', label: 'Calories', icon: 'calories', emoji: WIDGET_EMOJI.calories, color: theme.color.macro.calories },
+  { key: 'protein', macro: 'protein', label: 'Protein', icon: 'protein', emoji: WIDGET_EMOJI.protein, color: theme.color.macro.protein },
+  { key: 'fibre', macro: 'fibre', label: 'Fibre', icon: 'fibre', emoji: WIDGET_EMOJI.fibre, color: theme.color.macro.fibre },
+  { key: 'carbs', macro: 'carbs', label: 'Carbs', icon: 'carbs', emoji: WIDGET_EMOJI.carbs, color: theme.color.macro.carbs },
+  { key: 'fat', macro: 'fat', label: 'Fat', icon: 'fat', emoji: WIDGET_EMOJI.fat, color: theme.color.macro.fat },
+  { key: 'water', label: 'Water', icon: 'water', emoji: WIDGET_EMOJI.water, color: theme.color.indigo },
+  { key: 'steps', label: 'Steps', icon: 'steps', emoji: WIDGET_EMOJI.steps, color: theme.color.macro.fibre },
 ];
 
 export default function TargetsStep() {
@@ -31,6 +32,7 @@ export default function TargetsStep() {
   const { session } = useSession();
   const qc = useQueryClient();
   const router = useRouter();
+  const onBack = useSafeBack('/goal');
   const [busy, setBusy] = useState(false);
 
   const targets = draft.targets;
@@ -38,7 +40,7 @@ export default function TargetsStep() {
   if (!targets) {
     return (
       <ScreenContainer>
-        <Stepper step={4} total={4} onBack={() => router.back()} />
+        <Stepper step={4} total={4} onBack={onBack} onLogout={confirmSignOut} />
         <Text style={styles.sub}>Let&apos;s calculate your targets first.</Text>
         <Button title="Back to goal" onPress={() => router.replace('/goal')} />
       </ScreenContainer>
@@ -101,7 +103,7 @@ export default function TargetsStep() {
 
   return (
     <ScreenContainer>
-      <Stepper step={4} total={4} onBack={() => router.back()} />
+      <Stepper step={4} total={4} onBack={onBack} onLogout={confirmSignOut} />
       <Text style={styles.title}>Your targets</Text>
       <Text style={styles.sub}>Here are your daily targets.</Text>
 
@@ -118,6 +120,7 @@ export default function TargetsStep() {
           <View key={w.key} style={styles.cell}>
             <SelectCard
               icon={w.icon}
+              emoji={w.emoji}
               label={w.label}
               tint={w.color}
               checkbox

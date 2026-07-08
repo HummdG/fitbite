@@ -9,10 +9,12 @@ type Props = {
   children: ReactNode;
   scroll?: boolean;
   style?: ViewStyle;
+  /** Override the full-bleed screen background (defaults to the brand background). */
+  background?: string;
 };
 
 /** Safe-area + brand background + responsive padding + tablet max-width centering. */
-export function ScreenContainer({ children, scroll = true, style }: Props) {
+export function ScreenContainer({ children, scroll = true, style, background }: Props) {
   const insets = useSafeAreaInsets();
   const { maxContentWidth } = useResponsive();
 
@@ -37,12 +39,14 @@ export function ScreenContainer({ children, scroll = true, style }: Props) {
     </View>
   );
 
+  const rootStyle = [styles.root, { paddingTop: insets.top }, background ? { backgroundColor: background } : null];
+
   if (!scroll) {
-    return <View style={[styles.root, { paddingTop: insets.top }]}>{inner}</View>;
+    return <View style={rootStyle}>{inner}</View>;
   }
   return (
     <ScrollView
-      style={[styles.root, { paddingTop: insets.top }]}
+      style={rootStyle}
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
     >
